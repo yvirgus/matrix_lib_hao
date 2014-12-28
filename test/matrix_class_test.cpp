@@ -121,6 +121,31 @@ namespace matrix_hao_lib
   //cout<<flag<<endl;
  }
 
+ void matrix_2d_trans_conjtrans_test()
+ {
+  Matrix<complex<double>,2>    A={2,3,{ {0.0,1.0},{5.0,2.0},{0.123,0.31},
+                                        {0.0,2.0},{3.0,4.0},{0.123,0.21} }};
+  Matrix<complex<double>,2>    B=trans(A);
+  Matrix<complex<double>,2>    C=conjtrans(A);
+  size_t flag=0;
+
+  for(size_t i=0; i<A.L1; i++)
+  {
+   for(size_t j=0; j<A.L2; j++)
+   {
+    if(abs(A(i,j)-B(j,i))>1e-12) flag++;
+    if(abs(A(i,j)-conj(C(j,i)))>1e-12) flag++;
+   }
+  }
+
+  //cout<<A<<endl;
+  //cout<<B<<endl;
+  //cout<<C<<endl;
+
+  if(flag==0) cout<<"Matrix 2d conj trans passed complex double test! \n";
+  else cout<<"WARNING!!!!!!!!! Matrix 2d conj trans failed complex double test! \n";
+ }
+
  void matrix_exp_test()
  {
   Matrix<complex<double>,1>    C={6,{ {0.0,1.0},{5.0,2.0},{0.123,0.31},
@@ -139,6 +164,7 @@ namespace matrix_hao_lib
   matrix_2d_c_slicing();
   matrix_3d_c_slicing();
   matrix_conj_test();
+  matrix_2d_trans_conjtrans_test();
   matrix_exp_test();
   return;
  }

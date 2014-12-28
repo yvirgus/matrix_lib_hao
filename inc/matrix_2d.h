@@ -95,6 +95,30 @@ namespace matrix_hao_lib
  template <class T>
  Matrix<std::complex<T>,2> conj(const Matrix<std::complex<T>,2>& A) {Matrix<std::complex<T>,2> B(A.L1,A.L2);B=A.conj();return B;}
 
+ //for trans
+ template <class T>
+ Matrix<T,2> trans(const Matrix<T,2>& A) 
+ {
+  Matrix<T,2> B(A.L2,A.L1);
+  for(size_t i=0; i<A.L1; i++)
+  {
+   for(size_t j=0; j<A.L2; j++) B(j,i)=A(i,j);
+  }
+  return B;
+ }
+
+ //for conjtrans
+ template <class T>
+ Matrix<std::complex<T>,2> conjtrans(const Matrix<std::complex<T>,2>& A) 
+ {
+  Matrix<std::complex<T>,2> B(A.L2,A.L1);
+  for(size_t i=0; i<A.L1; i++)
+  {
+   for(size_t j=0; j<A.L2; j++) B(j,i)=std::conj(A(i,j));
+  }
+  return B;
+ }
+
 
  //for cout
  template <class T>
@@ -111,6 +135,8 @@ namespace matrix_hao_lib
   }
   return out;
  }
+
+
 } //end namespace matrix_hao_lib
 
 #endif

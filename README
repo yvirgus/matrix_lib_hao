@@ -1,4 +1,4 @@
 matrix_lib_hao
 ==============
 
-The c++ matrix library, it support many dimension array and use lapack blas libaray.
+The c++ matrix library, it supports many dimension array and uses lapack blas libaray.
