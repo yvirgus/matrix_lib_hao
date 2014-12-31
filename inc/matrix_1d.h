@@ -34,10 +34,10 @@ namespace matrix_hao_lib
     void range_check(size_t i) const  {if (i>=L1) throw std::invalid_argument("exceed the range of 1D array");}
     void lenth_check() const {if(L1!=this->L) throw std::invalid_argument("size not consistent in 1D array");}
     // subscripting:
-    T operator ()(size_t i) const  {range_check(i); return this->base_array[i];}
-    T& operator()(size_t i)        {range_check(i); return this->base_array[i];}
-    T operator [](size_t i) const  {range_check(i); return this->base_array[i];}
-    T& operator[](size_t i)        {range_check(i); return this->base_array[i];}
+    T operator ()(size_t i) const  {/*range_check(i);*/ return this->base_array[i];}
+    T& operator()(size_t i)        {/*range_check(i);*/ return this->base_array[i];}
+    T operator [](size_t i) const  {/*range_check(i);*/ return this->base_array[i];}
+    T& operator[](size_t i)        {/*range_check(i);*/ return this->base_array[i];}
 
 
     /**************************/

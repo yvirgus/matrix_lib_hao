@@ -34,8 +34,8 @@ namespace matrix_hao_lib
     void range_check(size_t i,size_t j) const  {if((i>=L1)||(j>=L2) ) throw std::invalid_argument("exceed the range of 2D array");}
     void lenth_check() const {if((L1*L2)!=this->L) throw std::invalid_argument("size not consistent in 2D array");}
     // subscripting, the matrix is column arranged:
-    T operator ()(size_t i,size_t j) const  {range_check(i,j); return this->base_array[i+j*L1];}
-    T& operator()(size_t i,size_t j)        {range_check(i,j); return this->base_array[i+j*L1];}
+    T operator ()(size_t i,size_t j) const  {/*range_check(i,j);*/ return this->base_array[i+j*L1];}
+    T& operator()(size_t i,size_t j)        {/*range_check(i,j);*/ return this->base_array[i+j*L1];}
     Matrix<T,1> operator[](size_t i)
     {
      if(i>=L2) throw std::invalid_argument("i exceed the column range of 2D array");

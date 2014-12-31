@@ -36,8 +36,8 @@ namespace matrix_hao_lib
     {if( (i>=L1)||(j>=L2)||(k>=L3) ) throw std::invalid_argument("exceed the range of 3D array");}
     void lenth_check() const {if((L1*L2*L3)!=this->L) throw std::invalid_argument("size not consistent in 3D array");}
     // subscripting, the matrix is column arranged:
-    T operator ()(size_t i,size_t j,size_t k) const  {range_check(i,j,k); return this->base_array[i+j*L1+k*L1*L2];}
-    T& operator()(size_t i,size_t j,size_t k)        {range_check(i,j,k); return this->base_array[i+j*L1+k*L1*L2];}
+    T operator ()(size_t i,size_t j,size_t k) const  {/*range_check(i,j,k);*/ return this->base_array[i+j*L1+k*L1*L2];}
+    T& operator()(size_t i,size_t j,size_t k)        {/*range_check(i,j,k);*/ return this->base_array[i+j*L1+k*L1*L2];}
     Matrix<T,2> operator[](size_t i)
     {
      if(i>=L3) throw std::invalid_argument("i exceed the L3 range of 3D array");
