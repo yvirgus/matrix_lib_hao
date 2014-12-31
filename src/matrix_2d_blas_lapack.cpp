@@ -136,6 +136,7 @@ namespace matrix_hao_lib
   FORTRAN_NAME(zgetrf)(&N,&N,(BL_COMPLEX16* )A.base_array,&N,ipiv.base_array,&info);
   if(info<0) {cout<<"The "<<info<<"-th parameter is illegal!\n"; throw std::runtime_error(" ");} 
  }
+ 
 
  
  /************************/

@@ -39,8 +39,13 @@ namespace matrix_hao_lib
   Matrix<BL_INT,1> ipiv;
   BL_INT info;
 
+  LUDecomp() {}
   LUDecomp(const Matrix<T,2>& x);
-  ~LUDecomp() {};
+  LUDecomp(const LUDecomp<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;}
+  LUDecomp(LUDecomp<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;}
+  ~LUDecomp() {}
+  LUDecomp<T>& operator = (const LUDecomp<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;return *this;}
+  LUDecomp<T>& operator = (LUDecomp<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;return *this;}
  };
 
  /************************/

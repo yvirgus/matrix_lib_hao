@@ -144,6 +144,33 @@ namespace matrix_hao_lib
   {
    for(size_t j=0; j<A_exact.L2; j++) {if(abs(LU.A(i,j)-A_exact(i,j))>1e-13) flag++;}
   }
+
+  LUDecomp<complex<double>> LUC(LU);
+  for(size_t i=0; i<A_exact.L1; i++)
+  {
+   for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+  }
+
+  LUDecomp<complex<double>> LUR(std::move(LU));
+  for(size_t i=0; i<A_exact.L1; i++)
+  {
+   for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUR.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+  }
+
+  LUDecomp<complex<double>> LUEC;LUEC=LUC;
+  for(size_t i=0; i<A_exact.L1; i++)
+  {
+   for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUEC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+  }
+
+
+  LUDecomp<complex<double>> LUER;LUER=std::move(LUR);
+  for(size_t i=0; i<A_exact.L1; i++)
+  {
+   for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUER.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+  }
+
+
   if(flag==0) cout<<"LUDecomp passed complex double test! \n";
   else cout<<"WARNING!!!!!!!!! LUDecomp failed complex double test! \n";
  }
