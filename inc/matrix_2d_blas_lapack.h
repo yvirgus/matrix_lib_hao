@@ -5,6 +5,7 @@
 
 namespace matrix_hao_lib
 {
+
  /*************************************/
  /*Matrix Multiply C=alpha*A.B+beta*C */
  /*************************************/
@@ -34,18 +35,18 @@ namespace matrix_hao_lib
  /*******************************************/
  template <class T> class LUDecomp
  {
-  public:
-  Matrix<T,2> A;
-  Matrix<BL_INT,1> ipiv;
-  BL_INT info;
-
-  LUDecomp() {}
-  LUDecomp(const Matrix<T,2>& x);
-  LUDecomp(const LUDecomp<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;}
-  LUDecomp(LUDecomp<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;}
-  ~LUDecomp() {}
-  LUDecomp<T>& operator = (const LUDecomp<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;return *this;}
-  LUDecomp<T>& operator = (LUDecomp<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;return *this;}
+     public:
+     Matrix<T,2> A;
+     Matrix<BL_INT,1> ipiv;
+     BL_INT info;
+   
+     LUDecomp() {}
+     LUDecomp(const Matrix<T,2>& x);
+     LUDecomp(const LUDecomp<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;}
+     LUDecomp(LUDecomp<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;}
+     ~LUDecomp() {}
+     LUDecomp<T>& operator = (const LUDecomp<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;return *this;}
+     LUDecomp<T>& operator = (LUDecomp<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;return *this;}
  };
 
  /************************/
@@ -79,6 +80,7 @@ namespace matrix_hao_lib
  /*Diagonal array multipy matrix*/
  /*******************************/
  Matrix<std::complex<double>,2> D_Multi_Matrix(const Matrix<std::complex<double>,1>& D,const Matrix<std::complex<double>,2>& ph);
+
  
 }//end namespace matrix_hao_lib
 

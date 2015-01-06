@@ -11,27 +11,27 @@ using namespace matrix_hao_lib;
 
 int main(int argc, char** argv)
 {
- int rank=0;
+    int rank=0;
 
 #ifdef MPI_HAO
- MPI_Init(&argc,&argv);
- MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Init(&argc,&argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #endif
 
- if(rank==0)
- {
-  matrix_class_test(); 
-  matrix_2d_blas_lapack_test();
- }
+    if(rank==0)
+    {
+        matrix_class_test(); 
+        matrix_2d_blas_lapack_test();
+    }
 
 #ifdef MPI_HAO
- matrix_mpi_test();
+    matrix_mpi_test();
 #endif
 
 
 #ifdef MPI_HAO
- MPI_Finalize();
+    MPI_Finalize();
 #endif
 
- return 0;
+    return 0;
 }

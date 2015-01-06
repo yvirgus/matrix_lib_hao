@@ -5,6 +5,7 @@
 
 namespace matrix_hao_lib
 {
+
  //for add: (array+array)
  template <class T, int D>
  Matrix<T,D> operator + (const Matrix<T,D>& A,const Matrix<T,D>& B) {Matrix<T,D> C;C=A; C+=B; return C;} 
