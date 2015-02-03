@@ -26,8 +26,8 @@ namespace matrix_hao_lib
   protected:
      size_t L;
   public:
-     bool owns;       
      T* base_array;
+     bool owns;       
      char type;
  
      /*********************/
@@ -35,14 +35,14 @@ namespace matrix_hao_lib
      /*********************/
  
      //Void constructor:
-     Matrix_base(void): L(0),owns(true),base_array(nullptr) {this->settype();}
+     Matrix_base(void): L(0),base_array(nullptr),owns(true) {this->settype();}
      //N constructor: T[n], if we want to initial to zero: use T[n]()
-     Matrix_base(size_t n):L(n),owns(true),base_array(new T[n]) {this->settype();}
+     Matrix_base(size_t n):L(n),base_array(new T[n]),owns(true) {this->settype();}
      //List constructor:
      Matrix_base(const std::initializer_list <T> &args)
      {
-         base_array=new T[args.size()];
          L=args.size();
+         base_array=new T[args.size()];
          owns=true;
          this->settype();
          std::copy(args.begin(),args.begin()+args.size(),base_array);
@@ -54,7 +54,7 @@ namespace matrix_hao_lib
          else       {base_array=x.base_array;}
      }
      //Move constructor:
-     Matrix_base(Matrix_base<T>&& x): L(x.L_f()),owns(x.owns),base_array(x.base_array),type(x.type)
+     Matrix_base(Matrix_base<T>&& x): L(x.L_f()),base_array(x.base_array),owns(x.owns),type(x.type)
      {
          if(x.owns) x.base_array=nullptr;
      } 
