@@ -1,32 +1,20 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 project(matrixhao)
 
-if(NOT DEFINED MPI_HAO)
-else()
-  add_definitions(-DMPI_HAO=${MPI_HAO})
-endif()
+#For find module path
+set(CMAKE_MODULE_PATH "${MODULE_EXTRA_PATH}" ${CMAKE_MODULE_PATH})
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-   set(CMAKE_CXX_FLAGS " ")
-   set(CMAKE_CXX_FLAGS "-Wall -O3 -std=c++11 ${CMAKE_CXX_FLAGS}")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-endif()
+#For definitions
+add_definitions(${COMPILER_EXTRA_DEF})
 
+#For c++ flag
+set(CMAKE_CXX_FLAGS "${COMPILER_EXTRA_FLAG}" ${CMAKE_CXX_FLAGS})
 
-# For mkl library
-add_definitions(-DMKL_ILP64)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -m64")
-set(lapack_blas_dir "/opt/intel/mkl")
-set(lapack_blas_include "${lapack_blas_dir}/include")
-set(lapack_blas_path    "${lapack_blas_dir}/lib/intel64")
-find_library(lp64_lib NAMES mkl_intel_ilp64 PATHS ${lapack_blas_path})
-find_library(core_lib NAMES mkl_core PATHS ${lapack_blas_path})
-find_library(gnu_thread_lib NAMES mkl_gnu_thread PATHS ${lapack_blas_path})
-set(lapack_blas_lib ${lp64_lib} ${core_lib} ${gnu_thread_lib})
-include_directories(${lapack_blas_include})
-
-
+# For lapackblas library
+#-DMKL_ILP64 -fopenmp -m64 are needed for mkl
+find_package(lapackblas REQUIRED)
+include_directories(${lapackblas_include_dirs})
 
 include_directories(inc)
 
@@ -35,4 +23,3 @@ add_subdirectory(inc)
 add_subdirectory(src)
 
 add_subdirectory(test)
-
