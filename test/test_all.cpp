@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 
     if(rank==0)
     {
+        cout<<"\n\n\n=======Testing======="<<endl;
         matrix_class_test(); 
         matrix_2d_blas_lapack_test();
     }
