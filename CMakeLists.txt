@@ -12,9 +12,20 @@ add_definitions(${COMPILER_EXTRA_DEF})
 set(CMAKE_CXX_FLAGS "${COMPILER_EXTRA_FLAG}" ${CMAKE_CXX_FLAGS})
 
 # For lapackblas library
-#-DMKL_ILP64 -fopenmp -m64 are needed for mkl
-find_package(lapackblas REQUIRED)
-include_directories(${lapackblas_include_dirs})
+find_package(mkl)
+if(MKL_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -m64")
+  add_definitions(-DMKL_ILP64)
+  include_directories(${mkl_include_dirs})
+  set(lapackblas_libraries "${mkl_libraries}")
+endif()
+
+
+find_package(acml)
+if(ACML_FOUND)
+  set(lapackblas_libraries "${acml_libraries}")
+endif()
+
 
 include_directories(inc)
 
