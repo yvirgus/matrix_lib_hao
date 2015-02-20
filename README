@@ -2,3 +2,4 @@ matrix_lib_hao
 ==============
 
 The c++ matrix library, it supports many dimension array and uses lapack blas libaray.
+We can use both mkl and acml, with a customed acml.h (not 64, not mp version) header file.
