@@ -16,7 +16,7 @@ namespace matrix_hao_lib
  template<class T = double, int D = 1> class Matrix
  {
   private:
-     Matrix(); //this will not be complied
+     Matrix(); //this will not be compiled
  };
 
 
@@ -162,19 +162,19 @@ namespace matrix_hao_lib
      } 
  
  
-     //copy this=B scaler
+     //copy this=B scalar
      inline void copy(const T & B)          {for(size_t i=0; i<L; ++i) base_array[i] =B;}
-     //add_equal scaler SELF=SELF+B
+     //add_equal scalar SELF=SELF+B
      inline void add_equal(const T & B)     {for(size_t i=0; i<L; ++i) base_array[i] += B;}
-     //min_equal scaler SELF=SELF-B
+     //min_equal scalar SELF=SELF-B
      inline void min_equal(const T & B)     {for(size_t i=0; i<L; ++i) base_array[i] -= B;}
-     //min_add_equal scaler SELF=-SELF+B
+     //min_add_equal scalar SELF=-SELF+B
      inline void min_add_equal(const T & B) {for(size_t i=0; i<L; ++i) base_array[i]=B-base_array[i];}
-     //tim_equal scaler SELF=SELF*B
+     //tim_equal scalar SELF=SELF*B
      inline void tim_equal(const T & B)     {for(size_t i=0; i<L; ++i) base_array[i] *= B;}
-     //div_equal scaler SELF=SELF/B
+     //div_equal scalar SELF=SELF/B
      inline void div_equal(const T & B)     {for(size_t i=0; i<L; ++i) base_array[i] /= B;}
-     //inv_div_equal scaler SELF=(1/SELF)B
+     //inv_div_equal scalar SELF=(1/SELF)B
      inline void inv_div_equal(const T & B) {for(size_t i=0; i<L; ++i) base_array[i]=B/base_array[i];}
  
  
@@ -195,15 +195,15 @@ namespace matrix_hao_lib
      ///= array A=A/B
      Matrix_base<T>& operator /= (const Matrix_base<T> & B) {div_equal(B);return *this;}
  
-     //copy-assigment scaler 
+     //copy-assigment scalar 
      Matrix_base<T>& operator  = (const T & B) {copy(B);return *this;}
-     //+= scaler A=A+B
+     //+= scalar A=A+B
      Matrix_base<T>& operator += (const T & B) {add_equal(B);return *this;}
-     //-= scaler A=A-B
+     //-= scalar A=A-B
      Matrix_base<T>& operator -= (const T & B) {min_equal(B);return *this;}
-     //*= scaler A=A*B
+     //*= scalar A=A*B
      Matrix_base<T>& operator *= (const T & B) {tim_equal(B);return *this;}
-     ///= scaler A=A/B
+     ///= scalar A=A/B
      Matrix_base<T>& operator /= (const T & B) {div_equal(B);return *this;}
 
 
@@ -271,7 +271,7 @@ namespace matrix_hao_lib
  Matrix_base<T> operator / (Matrix_base<T>&& A,Matrix_base<T>&& B)           {Matrix_base<T> C;C=std::move(A); C/=B; return C;}
 
 
- //for add: (array+scaler)
+ //for add: (array+scalar)
  template <class T>
  Matrix_base<T> operator + (const Matrix_base<T>& A,const T & B) {Matrix_base<T> C;C=A; C+=B; return C;}
  template <class T>
@@ -281,7 +281,7 @@ namespace matrix_hao_lib
  template <class T>
  Matrix_base<T> operator + (const T & B,Matrix_base<T>&& A)      {Matrix_base<T> C;C=std::move(A); C+=B; return C;}
 
- //for minus: (array-scaler)
+ //for minus: (array-scalar)
  template <class T>
  Matrix_base<T> operator - (const Matrix_base<T>& A,const T & B) {Matrix_base<T> C;C=A; C-=B; return C;}
  template <class T>
@@ -292,7 +292,7 @@ namespace matrix_hao_lib
  Matrix_base<T> operator - (const T & B,Matrix_base<T>&& A)      {Matrix_base<T> C;C=std::move(A);C.min_add_equal(B);return C;}
 
 
- //for time: (array*scaler)
+ //for time: (array*scalar)
  template <class T>
  Matrix_base<T> operator * (const Matrix_base<T>& A,const T & B) {Matrix_base<T> C;C=A; C*=B; return C;}
  template <class T>
@@ -302,7 +302,7 @@ namespace matrix_hao_lib
  template <class T>
  Matrix_base<T> operator * (const T & B,Matrix_base<T>&& A)      {Matrix_base<T> C;C=std::move(A); C*=B; return C;}
 
- //for div: (array/scaler)
+ //for div: (array/scalar)
  template <class T>
  Matrix_base<T> operator / (const Matrix_base<T>& A,const T & B) {Matrix_base<T> C;C=A; C/=B; return C;}
  template <class T>

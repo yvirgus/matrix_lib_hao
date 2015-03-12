@@ -72,15 +72,15 @@ namespace matrix_hao_lib
      Matrix<T,3>& operator /= (const Matrix<T,3>& B) {this->div_equal(B);return *this;}
  
  
-     // copy-assigment scaler 
+     // copy-assigment scalar 
      Matrix<T,3>& operator  = (const T & B) {this->copy(B);return *this;}
-     // += scaler A=A+B
+     // += scalar A=A+B
      Matrix<T,3>& operator += (const T & B) {this->add_equal(B);return *this;}
-     // -= scaler A=A-B
+     // -= scalar A=A-B
      Matrix<T,3>& operator -= (const T & B) {this->min_equal(B);return *this;}
-     // *= scaler A=A*B
+     // *= scalar A=A*B
      Matrix<T,3>& operator *= (const T & B) {this->tim_equal(B);return *this;}
-     // /= scaler A=A/B
+     // /= scalar A=A/B
      Matrix<T,3>& operator /= (const T & B) {this->div_equal(B);return *this;}
 
  }; //end class matrix<T,3>

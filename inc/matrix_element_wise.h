@@ -51,7 +51,7 @@ namespace matrix_hao_lib
  Matrix<T,D> operator / (Matrix<T,D>&& A,Matrix<T,D>&& B)           {Matrix<T,D> C;C=std::move(A); C/=B; return C;}
 
 
- //for add: (array+scaler)
+ //for add: (array+scalar)
  template <class T, int D>
  Matrix<T,D> operator + (const Matrix<T,D>& A,const T & B) {Matrix<T,D> C;C=A; C+=B; return C;}
  template <class T, int D>
@@ -62,7 +62,7 @@ namespace matrix_hao_lib
  Matrix<T,D> operator + (const T & B,Matrix<T,D>&& A)      {Matrix<T,D> C;C=std::move(A); C+=B; return C;}
 
 
- //for minus: (array-scaler)
+ //for minus: (array-scalar)
  template <class T, int D>
  Matrix<T,D> operator - (const Matrix<T,D>& A,const T & B) {Matrix<T,D> C;C=A; C-=B; return C;}
  template <class T, int D>
@@ -74,7 +74,7 @@ namespace matrix_hao_lib
 
 
 
- //for time: (array*scaler)
+ //for time: (array*scalar)
  template <class T, int D>
  Matrix<T,D> operator * (const Matrix<T,D>& A,const T & B) {Matrix<T,D> C;C=A; C*=B; return C;}
  template <class T, int D>
@@ -85,7 +85,7 @@ namespace matrix_hao_lib
  Matrix<T,D> operator * (const T & B,Matrix<T,D>&& A)      {Matrix<T,D> C;C=std::move(A); C*=B; return C;}
 
 
- //for div: (array/scaler)
+ //for div: (array/scalar)
  template <class T, int D>
  Matrix<T,D> operator / (const Matrix<T,D>& A,const T & B) {Matrix<T,D> C;C=A; C/=B; return C;}
  template <class T, int D>
