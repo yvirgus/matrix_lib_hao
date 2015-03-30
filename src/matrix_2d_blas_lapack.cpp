@@ -1,5 +1,6 @@
 #include <cmath>
 #include "matrix_all.h"
+#include "magma.h"
 
 using std::complex;
 using std::conj;
@@ -80,6 +81,69 @@ namespace matrix_hao_lib
                          (BL_COMPLEX16* )&beta,  (BL_COMPLEX16* )C.base_array, &LDC);
  }
 
+
+ /*************************************/
+ /*Matrix Multiply C=alpha*A.B+beta*C */   /* Using MAGMA library */
+ /*************************************/
+
+
+  void gmm_magma(const Matrix<double,2>& A, const Matrix<double,2>& B, Matrix<double,2>& C,
+                 char TRANSA, char TRANSB, double alpha, double beta)
+ {
+     magma_int_t M, N, K; 
+     magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
+     magma_int_t Am, An, Bm, Bn;
+     magma_trans_t transA = magma_trans_const(TRANSA), transB = magma_trans_const(TRANSB);
+     magmaDouble_ptr d_A, d_B, d_C;
+
+     M=(transA==MagmaNoTrans) ? A.L1:A.L2;
+     K=(transA==MagmaNoTrans) ? A.L2:A.L1;
+     N=(transB==MagmaNoTrans) ? B.L2:B.L1;
+     //LDA=A.L1;
+     //LDB=B.L1;
+     //LDC=C.L1;
+     if ( transA == MagmaNoTrans ) {
+       LDA = Am = M;
+       An = K;
+     } else {
+       LDA = Am = K;
+       An = M;
+     }
+
+     if ( transB == MagmaNoTrans ) {
+       LDB = Bm = K;
+       Bn = N;
+     } else {
+       LDB = Bm = N;
+       Bn = K;
+     }
+     LDC = M;
+
+     LDDA = ((LDA+31)/32)*32;
+     LDDB = ((LDB+31)/32)*32;
+     LDDC = ((LDC+31)/32)*32;
+     
+     magma_dmalloc(&d_A, LDDA*An );
+     magma_dmalloc(&d_B, LDDB*Bn );
+     magma_dmalloc(&d_C, LDDC*N );
+
+     //copy data from host to device
+     magma_dsetmatrix( Am, An, A.base_array, LDA, d_A, LDDA );
+     magma_dsetmatrix( Bm, Bn, B.base_array, LDB, d_B, LDDB );
+     magma_dsetmatrix( M, N, C.base_array, LDC, d_C, LDDC );
+     
+     magma_dgemm(transA, transB, M, N, K,
+		 alpha, d_A, LDDA,
+                 d_B, LDDB,
+    		 beta,  d_C, LDDC);
+
+     //copy solution from device to host
+     magma_dgetmatrix( M, N, d_C, LDDC, C.base_array, LDC );
+
+     magma_free(d_A);
+     magma_free(d_B);
+     magma_free(d_C);
+ }
 
 
  /*************************************/

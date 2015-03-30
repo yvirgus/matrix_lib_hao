@@ -22,6 +22,22 @@ namespace matrix_hao_lib
  void gmm(const Matrix<std::complex<double>,2>& A, const Matrix<std::complex<double>,2>& B, Matrix<std::complex<double>,2>& C,
           char TRANSA='N', char TRANSB='N', std::complex<double> alpha=1, std::complex<double> beta=0);
 
+ /*************************************/
+ /*Matrix Multiply C=alpha*A.B+beta*C */ /* Using MAGMA library */
+ /*************************************/
+
+ void gmm_magma(const Matrix<float,2>& A, const Matrix<float,2>& B, Matrix<float,2>& C, 
+          char TRANSA='N', char TRANSB='N', float alpha=1, float beta=0);
+
+ void gmm_magma(const Matrix<double,2>& A, const Matrix<double,2>& B, Matrix<double,2>& C,
+          char TRANSA='N', char TRANSB='N', double alpha=1, double beta=0);
+
+ void gmm_magma(const Matrix<std::complex<float>,2>& A, const Matrix<std::complex<float>,2>& B, Matrix<std::complex<float>,2>& C,
+          char TRANSA='N', char TRANSB='N', std::complex<float> alpha=1,std::complex<float> beta=0);
+
+ void gmm_magma(const Matrix<std::complex<double>,2>& A, const Matrix<std::complex<double>,2>& B, Matrix<std::complex<double>,2>& C,
+          char TRANSA='N', char TRANSB='N', std::complex<double> alpha=1, std::complex<double> beta=0);
+
 
  /*************************************/
  /*Diagonalize Hermitian Matrix********/

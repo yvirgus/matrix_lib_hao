@@ -33,16 +33,44 @@ namespace matrix_hao_lib
                              2.0,4.0,3.123 }};
      Matrix<double,2> c(2,2);
      Matrix<double,2> c_exact={2,2,{14.861,12.630129,20.984,23.753129}};
+     cout<<a<<endl;
+     cout<<b<<endl;
+     cout<<c<<endl;
      gmm(a,b,c);
      //cout<<setprecision(10);
      //cout<<c<<endl;
      size_t flag=0;
+     cout<<c<<endl;
      for(size_t i=0; i<c.L1; i++)
      {
          for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-13) flag++;}
      }
      if(flag==0) cout<<"Gmm passed double test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed double test! \n";
+ }
+
+ void gmm_magma_double_test()
+ {
+     Matrix<double,2> a={2,3,{0.0,3.0,2.123,
+                             2.0,4.0,3.123 }};
+     Matrix<double,2> b={3,2,{0.0,3.0,2.123,
+                             2.0,4.0,3.123 }};
+     Matrix<double,2> c(2,2);
+     Matrix<double,2> c_exact={2,2,{14.861,12.630129,20.984,23.753129}};
+     cout<<a<<endl;
+     cout<<b<<endl;
+     cout<<c<<endl;
+     gmm_magma(a,b,c);
+     //cout<<setprecision(10);
+     //cout<<c<<endl;
+     cout<<c<<endl;
+     size_t flag=0;
+     for(size_t i=0; i<c.L1; i++)
+     {
+         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-13) flag++;}
+     }
+     if(flag==0) cout<<"Gmm_magma passed double test! \n";
+     else cout<<"WARNING!!!!!!!!! Gmm_magma failed double test! \n";
  }
 
  void gmm_complexfloat_test()
@@ -300,7 +328,8 @@ namespace matrix_hao_lib
  void matrix_2d_blas_lapack_test()
  {
      gmm_float_test();
-     gmm_double_test();
+     //     gmm_double_test();
+     gmm_magma_double_test();
      gmm_complexfloat_test();
      gmm_complexdouble_test();
      eigen_test();
