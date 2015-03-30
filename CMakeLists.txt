@@ -28,6 +28,15 @@ if(ACML_FOUND)
 endif()
 
 
+#set(lapackblas_libraries "-L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lm -lgfortran")
+set(cuda_lapackblas_libraries "-L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lm")
+include_directories("/usr/local/magma-1.6.1/include")
+include_directories("/usr/local/magma-1.6.1/lib")
+include_directories("/usr/local/cuda-7.0/include")
+
+#target_link_libraries(matrixhao -L/usr/local/magma-1.6.1/lib -lmagma)
+#target_link_libraries(matrixhao -L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lcublas -lcudart -lm -lgfortran)
+
 include_directories(inc)
 
 add_subdirectory(inc)
