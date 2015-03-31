@@ -87,7 +87,68 @@ namespace matrix_hao_lib
  /*************************************/
 
 
-  void gmm_magma(const Matrix<double,2>& A, const Matrix<double,2>& B, Matrix<double,2>& C,
+ void gmm_magma(const Matrix<float,2>& A, const Matrix<float,2>& B, Matrix<float,2>& C,
+                char TRANSA, char TRANSB, float alpha, float beta)
+ {
+     magma_int_t M, N, K; 
+     magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
+     magma_int_t Am, An, Bm, Bn;
+     magma_trans_t transA = magma_trans_const(TRANSA), transB = magma_trans_const(TRANSB);
+     magmaFloat_ptr d_A, d_B, d_C;
+
+     M=(transA==MagmaNoTrans) ? A.L1:A.L2;
+     K=(transA==MagmaNoTrans) ? A.L2:A.L1;
+     N=(transB==MagmaNoTrans) ? B.L2:B.L1;
+     //LDA=A.L1;
+     //LDB=B.L1;
+     //LDC=C.L1;
+     if ( transA == MagmaNoTrans ) {
+       LDA = Am = M;
+       An = K;
+     } else {
+       LDA = Am = K;
+       An = M;
+     }
+
+     if ( transB == MagmaNoTrans ) {
+       LDB = Bm = K;
+       Bn = N;
+     } else {
+       LDB = Bm = N;
+       Bn = K;
+     }
+     LDC = M;
+
+     LDDA = ((LDA+31)/32)*32;
+     LDDB = ((LDB+31)/32)*32;
+     LDDC = ((LDC+31)/32)*32;
+     
+     // Allocate memory for the matrices on GPU
+     magma_smalloc(&d_A, LDDA*An );
+     magma_smalloc(&d_B, LDDB*Bn );
+     magma_smalloc(&d_C, LDDC*N );
+
+     // Copy data from host (CPU) to device (GPU)
+     magma_ssetmatrix( Am, An, A.base_array, LDA, d_A, LDDA );
+     magma_ssetmatrix( Bm, Bn, B.base_array, LDB, d_B, LDDB );
+     magma_ssetmatrix( M, N, C.base_array, LDC, d_C, LDDC );
+     
+     magma_sgemm(transA, transB, M, N, K,
+		 alpha, d_A, LDDA,
+                        d_B, LDDB,
+    		 beta,  d_C, LDDC);
+
+     // Copy solution from device (GPU) to host (CPU)
+     magma_sgetmatrix( M, N, d_C, LDDC, C.base_array, LDC );
+
+     // Free memory on GPU
+     magma_free(d_A);
+     magma_free(d_B);
+     magma_free(d_C);
+ }
+
+
+ void gmm_magma(const Matrix<double,2>& A, const Matrix<double,2>& B, Matrix<double,2>& C,
                  char TRANSA, char TRANSB, double alpha, double beta)
  {
      magma_int_t M, N, K; 
@@ -122,29 +183,154 @@ namespace matrix_hao_lib
      LDDA = ((LDA+31)/32)*32;
      LDDB = ((LDB+31)/32)*32;
      LDDC = ((LDC+31)/32)*32;
-     
+
+     // Allocate memory for the matrices on GPU     
      magma_dmalloc(&d_A, LDDA*An );
      magma_dmalloc(&d_B, LDDB*Bn );
      magma_dmalloc(&d_C, LDDC*N );
 
-     //copy data from host to device
+     // Copy data from host (CPU) to device (GPU)
      magma_dsetmatrix( Am, An, A.base_array, LDA, d_A, LDDA );
      magma_dsetmatrix( Bm, Bn, B.base_array, LDB, d_B, LDDB );
      magma_dsetmatrix( M, N, C.base_array, LDC, d_C, LDDC );
      
      magma_dgemm(transA, transB, M, N, K,
 		 alpha, d_A, LDDA,
-                 d_B, LDDB,
+                        d_B, LDDB,
     		 beta,  d_C, LDDC);
 
-     //copy solution from device to host
+     // Copy solution from device (GPU) to host (CPU)
      magma_dgetmatrix( M, N, d_C, LDDC, C.base_array, LDC );
 
+     // Free memory on GPU
      magma_free(d_A);
      magma_free(d_B);
      magma_free(d_C);
  }
 
+void gmm_magma(const Matrix<complex<float>,2>& A, const Matrix<complex<float>,2>& B, Matrix<complex<float>,2>& C,
+               char TRANSA, char TRANSB, complex<float> alpha, complex<float> beta)
+{
+     magma_int_t M, N, K; 
+     magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
+     magma_int_t Am, An, Bm, Bn;
+     magma_trans_t transA = magma_trans_const(TRANSA), transB = magma_trans_const(TRANSB);
+     magmaFloatComplex_ptr d_A, d_B, d_C;
+
+     M=(transA==MagmaNoTrans) ? A.L1:A.L2;
+     K=(transA==MagmaNoTrans) ? A.L2:A.L1;
+     N=(transB==MagmaNoTrans) ? B.L2:B.L1;
+     //LDA=A.L1;
+     //LDB=B.L1;
+     //LDC=C.L1;
+     if ( transA == MagmaNoTrans ) {
+       LDA = Am = M;
+       An = K;
+     } else {
+       LDA = Am = K;
+       An = M;
+     }
+
+     if ( transB == MagmaNoTrans ) {
+       LDB = Bm = K;
+       Bn = N;
+     } else {
+       LDB = Bm = N;
+       Bn = K;
+     }
+     LDC = M;
+
+     LDDA = ((LDA+31)/32)*32;
+     LDDB = ((LDB+31)/32)*32;
+     LDDC = ((LDC+31)/32)*32;
+
+     // Allocate memory for the matrices on GPU     
+     magma_cmalloc(&d_A, LDDA*An );
+     magma_cmalloc(&d_B, LDDB*Bn );
+     magma_cmalloc(&d_C, LDDC*N );
+
+     // Copy data from host (CPU) to device (GPU)
+     // Casting is required from std:complex<float> to  magmaFloatComplex;
+     magma_csetmatrix( Am, An, reinterpret_cast<magmaFloatComplex*>(A.base_array), LDA, d_A, LDDA );
+     magma_csetmatrix( Bm, Bn, reinterpret_cast<magmaFloatComplex*>(B.base_array), LDB, d_B, LDDB );
+     magma_csetmatrix( M, N, reinterpret_cast<magmaFloatComplex*>(C.base_array), LDC, d_C, LDDC );
+     
+     // This casting gives an warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+     magma_cgemm(transA, transB, M, N, K,
+     		 *reinterpret_cast<magmaFloatComplex*> (&alpha), d_A, LDDA, 
+                                                                 d_B, LDDB,
+      		 *reinterpret_cast<magmaFloatComplex*> (&beta),  d_C, LDDC);
+
+     // Copy solution from device (GPU) to host (CPU)
+     magma_cgetmatrix( M, N, d_C, LDDC, reinterpret_cast<magmaFloatComplex*>(C.base_array), LDC );
+
+     // Free memory on GPU
+     magma_free(d_A);
+     magma_free(d_B);
+     magma_free(d_C);
+}
+
+void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,2>& B, Matrix<complex<double>,2>& C,
+          char TRANSA, char TRANSB, complex<double> alpha, complex<double> beta)
+{
+     magma_int_t M, N, K; 
+     magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
+     magma_int_t Am, An, Bm, Bn;
+     magma_trans_t transA = magma_trans_const(TRANSA), transB = magma_trans_const(TRANSB);
+     magmaDoubleComplex_ptr d_A, d_B, d_C;
+
+     M=(transA==MagmaNoTrans) ? A.L1:A.L2;
+     K=(transA==MagmaNoTrans) ? A.L2:A.L1;
+     N=(transB==MagmaNoTrans) ? B.L2:B.L1;
+     //LDA=A.L1;
+     //LDB=B.L1;
+     //LDC=C.L1;
+     if ( transA == MagmaNoTrans ) {
+       LDA = Am = M;
+       An = K;
+     } else {
+       LDA = Am = K;
+       An = M;
+     }
+
+     if ( transB == MagmaNoTrans ) {
+       LDB = Bm = K;
+       Bn = N;
+     } else {
+       LDB = Bm = N;
+       Bn = K;
+     }
+     LDC = M;
+
+     LDDA = ((LDA+31)/32)*32;
+     LDDB = ((LDB+31)/32)*32;
+     LDDC = ((LDC+31)/32)*32;
+
+     // Allocate memory for the matrices on GPU     
+     magma_zmalloc(&d_A, LDDA*An );
+     magma_zmalloc(&d_B, LDDB*Bn );
+     magma_zmalloc(&d_C, LDDC*N );
+
+     // Copy data from host (CPU) to device (GPU)
+     // Casting is required from std:complex<double> to  magmaDoubleComplex;
+     magma_zsetmatrix( Am, An, reinterpret_cast<magmaDoubleComplex*>(A.base_array), LDA, d_A, LDDA );
+     magma_zsetmatrix( Bm, Bn, reinterpret_cast<magmaDoubleComplex*>(B.base_array), LDB, d_B, LDDB );
+     magma_zsetmatrix( M, N, reinterpret_cast<magmaDoubleComplex*>(C.base_array), LDC, d_C, LDDC );
+
+     // This casting gives an warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]     
+     magma_zgemm(transA, transB, M, N, K,
+		 *reinterpret_cast<magmaDoubleComplex*>(&alpha), d_A, LDDA,
+                                                                 d_B, LDDB,
+    		 *reinterpret_cast<magmaDoubleComplex*>(&beta),  d_C, LDDC);
+
+     // Copy solution from device (GPU) to host (CPU)
+     magma_zgetmatrix( M, N, d_C, LDDC, reinterpret_cast<magmaDoubleComplex*>(C.base_array), LDC );
+
+     // Free memory on GPU
+     magma_free(d_A);
+     magma_free(d_B);
+     magma_free(d_C);
+}
 
  /*************************************/
  /*Check Hermitian of the matrix*******/
