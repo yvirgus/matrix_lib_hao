@@ -208,6 +208,34 @@ namespace matrix_hao_lib
      magma_free(d_C);
  }
 
+ // Internal functions to aid safe typecasting to MAGMA-specific datatypes
+ // Note: Since this can be a risky cast, I isolate these casts as private functions.
+
+ static inline magmaFloatComplex _cast_C_magma(const std::complex<float> &Z)
+ {
+    using std::real;
+    using std::imag;
+    return MAGMA_C_MAKE(real(Z), imag(Z));
+ }
+
+ static inline magmaFloatComplex_ptr _cast_Cptr_magma(std::complex<float> *Z)
+ {
+    return reinterpret_cast<magmaFloatComplex_ptr>(Z);
+ }
+
+ static inline magmaDoubleComplex _cast_Z_magma(const std::complex<double> &Z)
+ {
+    using std::real;
+    using std::imag;
+    return MAGMA_Z_MAKE(real(Z), imag(Z));
+ }
+
+ static inline magmaDoubleComplex_ptr _cast_Zptr_magma(std::complex<double> *Z)
+ {
+    return reinterpret_cast<magmaDoubleComplex_ptr>(Z);
+ }
+
+
 void gmm_magma(const Matrix<complex<float>,2>& A, const Matrix<complex<float>,2>& B, Matrix<complex<float>,2>& C,
                char TRANSA, char TRANSB, complex<float> alpha, complex<float> beta)
 {
@@ -251,18 +279,18 @@ void gmm_magma(const Matrix<complex<float>,2>& A, const Matrix<complex<float>,2>
 
      // Copy data from host (CPU) to device (GPU)
      // Casting is required from std:complex<float> to  magmaFloatComplex;
-     magma_csetmatrix( Am, An, reinterpret_cast<magmaFloatComplex*>(A.base_array), LDA, d_A, LDDA );
-     magma_csetmatrix( Bm, Bn, reinterpret_cast<magmaFloatComplex*>(B.base_array), LDB, d_B, LDDB );
-     magma_csetmatrix( M, N, reinterpret_cast<magmaFloatComplex*>(C.base_array), LDC, d_C, LDDC );
+     magma_csetmatrix( Am, An, _cast_Cptr_magma(A.base_array), LDA, d_A, LDDA );
+     magma_csetmatrix( Bm, Bn, _cast_Cptr_magma(B.base_array), LDB, d_B, LDDB );
+     magma_csetmatrix( M, N, _cast_Cptr_magma(C.base_array), LDC, d_C, LDDC );
      
      // This casting gives an warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
      magma_cgemm(transA, transB, M, N, K,
-     		 *reinterpret_cast<magmaFloatComplex*> (&alpha), d_A, LDDA, 
-                                                                 d_B, LDDB,
-      		 *reinterpret_cast<magmaFloatComplex*> (&beta),  d_C, LDDC);
+		 _cast_C_magma(alpha), d_A, LDDA,
+                                       d_B, LDDB,
+		 _cast_C_magma(beta),  d_C, LDDC);
 
      // Copy solution from device (GPU) to host (CPU)
-     magma_cgetmatrix( M, N, d_C, LDDC, reinterpret_cast<magmaFloatComplex*>(C.base_array), LDC );
+     magma_cgetmatrix( M, N, d_C, LDDC, _cast_Cptr_magma(C.base_array), LDC );
 
      // Free memory on GPU
      magma_free(d_A);
@@ -313,18 +341,18 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
 
      // Copy data from host (CPU) to device (GPU)
      // Casting is required from std:complex<double> to  magmaDoubleComplex;
-     magma_zsetmatrix( Am, An, reinterpret_cast<magmaDoubleComplex*>(A.base_array), LDA, d_A, LDDA );
-     magma_zsetmatrix( Bm, Bn, reinterpret_cast<magmaDoubleComplex*>(B.base_array), LDB, d_B, LDDB );
-     magma_zsetmatrix( M, N, reinterpret_cast<magmaDoubleComplex*>(C.base_array), LDC, d_C, LDDC );
+     magma_zsetmatrix( Am, An, _cast_Zptr_magma(A.base_array), LDA, d_A, LDDA );
+     magma_zsetmatrix( Bm, Bn, _cast_Zptr_magma(B.base_array), LDB, d_B, LDDB );
+     magma_zsetmatrix( M, N, _cast_Zptr_magma(C.base_array), LDC, d_C, LDDC );
 
      // This casting gives an warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]     
      magma_zgemm(transA, transB, M, N, K,
-		 *reinterpret_cast<magmaDoubleComplex*>(&alpha), d_A, LDDA,
-                                                                 d_B, LDDB,
-    		 *reinterpret_cast<magmaDoubleComplex*>(&beta),  d_C, LDDC);
+		 _cast_Z_magma(alpha), d_A, LDDA,
+                                       d_B, LDDB,
+		 _cast_Z_magma(beta),  d_C, LDDC);
 
      // Copy solution from device (GPU) to host (CPU)
-     magma_zgetmatrix( M, N, d_C, LDDC, reinterpret_cast<magmaDoubleComplex*>(C.base_array), LDC );
+     magma_zgetmatrix( M, N, d_C, LDDC, _cast_Zptr_magma(C.base_array), LDC );
 
      // Free memory on GPU
      magma_free(d_A);
