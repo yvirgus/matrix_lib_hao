@@ -45,6 +45,11 @@ namespace matrix_hao_lib
  void check_Hermitian(const Matrix<std::complex<double>,2>& A);
  void eigen(Matrix<std::complex<double>,2>& A, Matrix<double,1>& W, char JOBZ='V', char UPLO='U');
 
+ /*************************************/
+ /*Diagonalize Hermitian Matrix********/    /* Using MAGMA library */
+ /*************************************/
+ void eigen_magma(Matrix<std::complex<double>,2>& A, Matrix<double,1>& W, char JOBZ='V', char UPLO='U');
+
 
  /*******************************************/
  /*LU Decomposition of Complex double Matrix*/

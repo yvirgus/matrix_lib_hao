@@ -403,6 +403,54 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
  }
 
 
+ /*************************************/
+ /*Diagonalize Hermitian Matrix********/     /* Using MAGMA library */
+ /*************************************/
+ void eigen_magma(Matrix<complex<double>,2>& A, Matrix<double,1>& W, char JOBZ, char UPLO)
+ {
+     if(A.L1!=A.L2) throw std::invalid_argument("Input for eigen is not square matrix!");
+     magma_vec_t jobz = magma_vec_const(JOBZ);
+     magma_uplo_t uplo = magma_uplo_const(UPLO);
+     double *rwork, aux_rwork[1];
+     magma_int_t lrwork;
+     magma_int_t *iwork, aux_iwork[1];
+     magma_int_t N=A.L1, info, lwork, liwork, lda;
+     magmaDoubleComplex *h_work, aux_work[1];
+     
+     lda = N;
+
+     // query for workspace sizes
+     magma_zheevd( jobz, uplo,
+		   N, NULL, lda, NULL,
+		   aux_work,  -1,
+		   aux_rwork, -1,
+		   aux_iwork, -1,
+		   &info );
+
+     lwork  = (magma_int_t) MAGMA_Z_REAL( aux_work[0] );
+     lrwork = (magma_int_t) aux_rwork[0];
+     liwork = aux_iwork[0];
+
+     // allocate memory on CPU
+     magma_dmalloc_cpu(&rwork, lrwork);
+     magma_imalloc_cpu(&iwork, liwork);
+     magma_zmalloc_pinned(&h_work, lwork);
+
+     // Perform operation using magma 
+     magma_zheevd( jobz, uplo,
+		   N, _cast_Zptr_magma(A.base_array), lda, W.base_array,
+		   h_work, lwork,
+		   rwork, lrwork,
+		   iwork, liwork,
+		   &info );
+     
+     // free allocated memory
+     magma_free_cpu(rwork);
+     magma_free_cpu(iwork);
+     magma_free_pinned(h_work);
+ }
+
+
  /******************************************/
  /*LU Decomposition a complex square Matrix*/
  /******************************************/

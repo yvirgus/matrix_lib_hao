@@ -204,8 +204,9 @@ namespace matrix_hao_lib
                                         {2.123,-3.11},{5.123,-3.11},{3,0.0}     } };
      Matrix<double,1> w(3);
      check_Hermitian(a);
+     cout << a << endl;
      eigen(a,w);
-
+     cout << a << endl;
      Matrix<complex<double>,2> a_exact={3,3,{ {-0.4053433965286621, -0.3217472918461721},
                                               {-0.3733963692733272,  0.6060804552476304},    
                                               {0.47478104875888194,  0},
@@ -227,6 +228,42 @@ namespace matrix_hao_lib
 
      if(flag==0) cout<<"Eigen passed Hermition test! \n";
      else cout<<"WARNING!!!!!!!!! Eigen failed Hermintion test! \n";
+     //cout<<setprecision(16);
+     //cout<<w<<endl;
+     //cout<<a<<endl;
+ }
+
+ void eigen_magma_test()
+ {
+     Matrix<complex<double>,2> a={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-4.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-3.11},{5.123,-3.11},{3,0.0}     } };
+     Matrix<double,1> w(3);
+     check_Hermitian(a);
+     cout << a << endl;
+     eigen_magma(a,w);
+     cout << a << endl;
+     Matrix<complex<double>,2> a_exact={3,3,{ {-0.4053433965286621, -0.3217472918461721},
+                                              {-0.3733963692733272,  0.6060804552476304},    
+                                              {0.47478104875888194,  0},
+                                              {0.13035873463974057,  0.6902772720595061},   
+                                              {-0.26751344366934643,-0.20279279787239068},    
+                                              {0.6275631654012745,   0},
+                                              {-0.179307184764388,   0.4544757777410628},
+                                              {-0.5593786354476359,  0.26009385608337265},
+                                              {-0.6170473475925071,  0}     } };
+     Matrix<double,1> w_exact={3,{-4.7040348985237666,-1.1586196209127053,11.862654519436473}};
+
+     size_t flag=0;
+     for(size_t i=0; i<a.L1; i++)
+     {
+         for(size_t j=0; j<a.L2; j++) {if(abs(abs(a(i,j))-abs(a_exact(i,j)))>1e-13) flag++;}
+     }
+
+     for(size_t i=0; i<w.L1; i++) {if(abs(w(i)-w_exact(i))>1e-13) flag++;}
+
+     if(flag==0) cout<<"Eigen_magma passed Hermition test! \n";
+     else cout<<"WARNING!!!!!!!!! Eigen_magma failed Hermintion test! \n";
      //cout<<setprecision(16);
      //cout<<w<<endl;
      //cout<<a<<endl;
@@ -410,7 +447,8 @@ namespace matrix_hao_lib
      gmm_magma_complexfloat_test();
      //     gmm_complexdouble_test();
      gmm_magma_complexdouble_test();
-     eigen_test();
+     //eigen_test();
+     eigen_magma_test();
      LUDecomp_test();
      determinant_test();
      log_determinant_test();
