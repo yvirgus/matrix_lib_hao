@@ -2,6 +2,7 @@
 #define MATRIX_HAO_BLAS_LAPACK
 
 #include "matrix_define.h"
+#include "magma.h"
 
 namespace matrix_hao_lib
 {
@@ -68,6 +69,25 @@ namespace matrix_hao_lib
      ~LUDecomp() {}
      LUDecomp<T>& operator = (const LUDecomp<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;return *this;}
      LUDecomp<T>& operator = (LUDecomp<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;return *this;}
+ };
+
+ /*******************************************/
+ /*LU Decomposition of Complex double Matrix*/    /* Using MAGMA library */
+ /*******************************************/
+ template <class T> class LUDecomp_magma
+ {
+     public:
+     Matrix<T,2> A;
+     Matrix<BL_INT,1> ipiv;
+     magma_int_t info;
+   
+     LUDecomp_magma() {}
+     LUDecomp_magma(const Matrix<T,2>& x);
+     LUDecomp_magma(const LUDecomp_magma<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;}
+     LUDecomp_magma(LUDecomp_magma<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;}
+     ~LUDecomp_magma() {}
+     LUDecomp_magma<T>& operator = (const LUDecomp_magma<T>& x) {A=x.A;ipiv=x.ipiv;info=x.info;return *this;}
+     LUDecomp_magma<T>& operator = (LUDecomp_magma<T>&& x) {A=std::move(x.A);ipiv=std::move(x.ipiv);info=x.info;return *this;}
  };
 
  /************************/
