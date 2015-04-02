@@ -241,8 +241,10 @@ namespace matrix_hao_lib
      Matrix<double,1> w(3);
      check_Hermitian(a);
      cout << a << endl;
+     cout << w << endl;
      eigen_magma(a,w);
      cout << a << endl;
+     cout << w << endl;
      Matrix<complex<double>,2> a_exact={3,3,{ {-0.4053433965286621, -0.3217472918461721},
                                               {-0.3733963692733272,  0.6060804552476304},    
                                               {0.47478104875888194,  0},
@@ -316,6 +318,55 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! LUDecomp failed complex double test! \n";
  }
 
+ void LUDecomp_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11}, 
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11}, 
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     
+     cout << A << endl;
+     LUDecomp_magma<complex<double>> LU(A);
+     cout << LU.A << endl;
+     cout << LU.ipiv << endl;
+     Matrix<complex<double>,2> A_exact={3,3,{ {3,4} ,   {0.75236,0.03351999999999994}, {0.12,-0.16},
+                                        {2,0},   {3.6182800000000004,3.04296},    {0.21807341113346007,-0.647707935025115},
+                                        {5.123,-6.11},{-1.05914748,4.42519664},{-0.14942307391746978,-5.208155953378981} } };
+
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LU.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LUDecomp_magma<complex<double>> LUC(LU);
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LUDecomp_magma<complex<double>> LUR(std::move(LU));
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUR.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LUDecomp_magma<complex<double>> LUEC;LUEC=LUC;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUEC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+
+     LUDecomp_magma<complex<double>> LUER;LUER=std::move(LUR);
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUER.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+
+     if(flag==0) cout<<"LUDecomp_magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! LUDecomp_magma failed complex double test! \n";
+ }
 
  void determinant_test()
  {
@@ -449,7 +500,8 @@ namespace matrix_hao_lib
      gmm_magma_complexdouble_test();
      //eigen_test();
      eigen_magma_test();
-     LUDecomp_test();
+     //LUDecomp_test();
+     LUDecomp_magma_test();
      determinant_test();
      log_determinant_test();
      inverse_test();
