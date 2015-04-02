@@ -1,4 +1,5 @@
 #include "matrix_all.h"
+#include "magma.h"
 
 namespace matrix_hao_lib
 {
@@ -12,6 +13,8 @@ using namespace matrix_hao_lib;
 int main(int argc, char** argv)
 {
     int rank=0;
+
+    magma_init();
 
 #ifdef MPI_HAO
     MPI_Init(&argc,&argv);
