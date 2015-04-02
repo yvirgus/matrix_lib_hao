@@ -465,6 +465,21 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
  }
  
 
+ /******************************************/
+ /*LU Decomposition a complex square Matrix*/     /* Using MAGMA library */
+ /******************************************/
+ template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<double>,2>& x)
+ {
+     if(x.L1!=x.L2) throw std::invalid_argument("Input for LU is not square matrix!");
+     A=x; 
+     ipiv=Matrix<magma_int_t,1>(x.L1);
+     magma_int_t N=A.L1, lda;
+     lda = N;
+
+     magma_zgetrf( N, N, _cast_Zptr_magma(A.base_array), lda, ipiv.base_array, &info);
+     if(info<0) {cout<<"The "<<info<<"-th parameter is illegal!\n"; throw std::runtime_error(" ");} 
+ }
+
  
  /************************/
  /*Determinant of  Matrix*/
