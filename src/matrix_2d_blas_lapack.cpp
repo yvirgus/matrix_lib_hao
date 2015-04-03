@@ -1,6 +1,6 @@
 #include <cmath>
 #include "matrix_all.h"
-#include "magma.h"
+//#include "magma.h"
 
 using std::complex;
 using std::conj;
@@ -14,7 +14,7 @@ namespace matrix_hao_lib
  /*Matrix Multiply C=alpha*A.B+beta*C */
  /*************************************/
 
- void gmm(const Matrix<float,2>& A, const Matrix<float,2>& B, Matrix<float,2>& C, 
+  /* void gmm(const Matrix<float,2>& A, const Matrix<float,2>& B, Matrix<float,2>& C, 
           char TRANSA, char TRANSB, float alpha, float beta)
  {
      BL_INT  M, N, K, LDA, LDB, LDC;
@@ -79,7 +79,7 @@ namespace matrix_hao_lib
                          (BL_COMPLEX16* )&alpha, (BL_COMPLEX16* )A.base_array, &LDA,
                          (BL_COMPLEX16* )B.base_array, &LDB,
                          (BL_COMPLEX16* )&beta,  (BL_COMPLEX16* )C.base_array, &LDC);
- }
+                         }  */
 
 
  /*************************************/
@@ -383,7 +383,7 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
  /*************************************/
  /*Diagonalize Hermitian Matrix********/
  /*************************************/
- void eigen(Matrix<complex<double>,2>& A, Matrix<double,1>& W, char JOBZ, char UPLO)
+  /* void eigen(Matrix<complex<double>,2>& A, Matrix<double,1>& W, char JOBZ, char UPLO)
  {
      if(A.L1!=A.L2) throw std::invalid_argument("Input for eigen is not square matrix!");
      BL_INT N=A.L1; BL_INT info; 
@@ -400,7 +400,7 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
                          (BL_COMPLEX16* )work,&lwork,(BL_DOUBLE* )rwork,&info);
      delete[] rwork;
      delete[] work;
- }
+     }*/
 
 
  /*************************************/
@@ -454,37 +454,74 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
  /******************************************/
  /*LU Decomposition a complex square Matrix*/
  /******************************************/
- template<> LUDecomp<complex<double>>::LUDecomp(const Matrix<complex<double>,2>& x)
+ /*template<> LUDecomp<complex<double>>::LUDecomp(const Matrix<complex<double>,2>& x)
  {
      if(x.L1!=x.L2) throw std::invalid_argument("Input for LU is not square matrix!");
      A=x; 
      ipiv=Matrix<BL_INT,1>(x.L1);
      BL_INT N=A.L1;
+     //cout << "The originial value of ipiv: \n" <<  ipiv << std::endl;
      FORTRAN_NAME(zgetrf)(&N,&N,(BL_COMPLEX16* )A.base_array,&N,ipiv.base_array,&info);
+     //cout << "The value of ipiv after: \n" <<  ipiv << std::endl;
      if(info<0) {cout<<"The "<<info<<"-th parameter is illegal!\n"; throw std::runtime_error(" ");} 
- }
+     }*/
  
 
  /******************************************/
  /*LU Decomposition a complex square Matrix*/     /* Using MAGMA library */
  /******************************************/
- template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<double>,2>& x)
+  // In this routine, there are several ways of implementing LU decomp. 
+  // All of them are equal basically
+/* template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<double>,2>& x)
+ {
+     if(x.L1!=x.L2) throw std::invalid_argument("Input for LU is not square matrix!");
+     A=x; 
+     
+     ipiv=Matrix<magma_int_t,1>(x.L1);
+     magma_int_t N=A.L1, lda;
+     //magma_int_t *ipv;
+     lda = N;
+
+     //cout << "The value of the pivot: " << ipiv << std::endl;
+
+     //magma_imalloc_cpu(&ipv, N);
+     //     cout << "The originial value of ipiv: \n" <<  ipiv << std::endl;
+     //cout << "The value of ipiv after: \n" <<  ipv[0] << " "<< ipv[1] << " " << ipv[2] << std::endl;
+     //cout << "The value of ipiv after: \n" <<  ipv[0] << std::endl;
+     
+     magma_zgetrf( N, N, _cast_Zptr_magma(A.base_array), lda, ipiv.base_array, &info);
+
+     cout << "The value of the pivot: " << ipiv << std::endl;
+
+     //magma_zgetrf( N, N, _cast_Zptr_magma(A.base_array), lda, ipv, &info);
+     //cout << "The value of ipiv after: \n" <<  ipv[0] << " "<< ipv[1] << " " << ipv[2] << std::endl;
+     cout << "info: " << info << "\n" << std::endl;
+
+     //magma_free_cpu(ipv);
+     if(info<0) {cout<<"The "<<info<<"-th parameter is illegal!\n"; throw std::runtime_error(" ");} 
+     }*/
+
+
+ /******************************************/
+ /*LU Decomposition a complex square Matrix*/     /* Using MAGMA library */
+ /******************************************/
+template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<double>,2>& x)
  {
      if(x.L1!=x.L2) throw std::invalid_argument("Input for LU is not square matrix!");
      A=x; 
      ipiv=Matrix<magma_int_t,1>(x.L1);
-     magma_int_t N=A.L1, lda;
-     lda = N;
-
-     magma_zgetrf( N, N, _cast_Zptr_magma(A.base_array), lda, ipiv.base_array, &info);
+     magma_int_t N=A.L1;
+     //cout << "The originial value of ipiv: \n" <<  ipiv << std::endl;
+     magma_zgetrf( N, N, _cast_Zptr_magma(A.base_array), N, ipiv.base_array, &info);
+     //cout << "The value of ipiv after: \n" <<  ipiv << std::endl;
      if(info<0) {cout<<"The "<<info<<"-th parameter is illegal!\n"; throw std::runtime_error(" ");} 
- }
+}
 
  
  /************************/
  /*Determinant of  Matrix*/
  /************************/
- complex<double> determinant(const LUDecomp<complex<double>>& x)
+/* complex<double> determinant(const LUDecomp<complex<double>>& x)
  {
      if(x.info>0) return 0;
     
@@ -496,12 +533,12 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
          else det*=x.A(i,i);
      }
      return det;
- }
+     } */
 
  /*****************************************/
  /*Get Log(|det|) and det/|det| of  Matrix*/
  /*****************************************/
- void lognorm_phase_determinant(const LUDecomp<complex<double>>& x, complex<double>& lognorm, complex<double>& phase)
+/* void lognorm_phase_determinant(const LUDecomp<complex<double>>& x, complex<double>& lognorm, complex<double>& phase)
  {
      if(x.info>0)
      {
@@ -520,16 +557,75 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
          else phase*=(x.A(i,i)/abs(x.A(i,i)));
      }
      return;
- }
+     }*/
 
 
  /****************************/
  /*Log Determinant of  Matrix*/
  /****************************/
- complex<double> log_determinant(const LUDecomp<complex<double>>& x)
+ /*complex<double> log_determinant(const LUDecomp<complex<double>>& x)
  {
      complex<double> log_det,phase; 
      lognorm_phase_determinant(x,log_det,phase);
+     log_det+=log(phase);
+     return log_det;
+     }*/
+
+
+
+ /************************/
+ /*Determinant of  Matrix*/     /* Using MAGMA library */
+ /************************/
+ complex<double> determinant_magma(const LUDecomp_magma<complex<double>>& x)
+ {
+     if(x.info>0) return 0;
+    
+     complex<double> det={1,0};
+     magma_int_t L=x.ipiv.L1;
+     for(magma_int_t i=0;i<L;i++)
+     {
+         if(x.ipiv(i)!=(i+1)) det*=(-x.A(i,i));
+         else det*=x.A(i,i);
+     }
+     //cout << "\n";
+     //cout << det << std::endl;
+     return det;
+ }
+
+ /*****************************************/
+ /*Get Log(|det|) and det/|det| of  Matrix*/     /* Using MAGMA library */
+ /*****************************************/
+ void lognorm_phase_determinant_magma(const LUDecomp_magma<complex<double>>& x, complex<double>& lognorm, complex<double>& phase)
+ {
+     if(x.info>0)
+     {
+         cout<<"WARNING!!!! lognorm_phase_determinant function has zero determinant!\n";
+         lognorm=complex<double>(-1e300,0.0);
+         phase=complex<double>(1.0,0.0);
+         return;
+     }
+
+     lognorm=complex<double>(0.0,0.0); phase=complex<double>(1.0,0.0);
+     magma_int_t L=x.ipiv.L1;
+     for(magma_int_t i=0;i<L;i++)
+     {
+         lognorm+=log(abs(x.A(i,i)));
+         if(x.ipiv(i)!=(i+1)) phase*=(-x.A(i,i)/abs(x.A(i,i)));
+         else phase*=(x.A(i,i)/abs(x.A(i,i)));
+     }
+     //cout << "\n";
+     //cout << phase << std::endl;
+     return;
+ }
+
+
+ /****************************/
+ /*Log Determinant of  Matrix*/     /* Using MAGMA library */
+ /****************************/
+ complex<double> log_determinant_magma(const LUDecomp_magma<complex<double>>& x)
+ {
+     complex<double> log_det,phase; 
+     lognorm_phase_determinant_magma(x,log_det,phase);
      log_det+=log(phase);
      return log_det;
  }
@@ -539,7 +635,7 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
  /*Inverse of  Matrix: If determinant of the matrix is outof machine precision, inverse should be fine, since it solve*
   *The linear equation, every small value is well defined                                                             */
  /*********************************************************************************************************************/
- Matrix<complex<double>,2> inverse(const LUDecomp<complex<double>>& x)
+/* Matrix<complex<double>,2> inverse(const LUDecomp<complex<double>>& x)
  {
      Matrix<complex<double>,2> A=x.A; //We know x.A own the matrix
      BL_INT N=A.L1; BL_INT info;
@@ -553,12 +649,12 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
      delete[] work; 
 
      return A;
- }
+     }*/
 
  /******************************************************/
  /*Solve Linear Equation of the matrix A*M=B: M=A^{-1}B*/
  /******************************************************/
- Matrix<complex<double>,2> solve_lineq(const LUDecomp<complex<double>>& x, const Matrix<complex<double>,2>& B, char TRANS)
+/* Matrix<complex<double>,2> solve_lineq(const LUDecomp<complex<double>>& x, const Matrix<complex<double>,2>& B, char TRANS)
  {
      if(x.A.L1!=B.L1) throw std::invalid_argument("Input size for solving linear equation is not consistent!");
      Matrix<complex<double>,2> M; M=B;
@@ -570,13 +666,13 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
          throw std::runtime_error(" ");
      }
      return M;
- }
+     }*/
 
 
  /******************************/
  /*QR decompostion of matrix ph*/
  /******************************/
- double QRMatrix(Matrix<complex<double>,2>& ph)
+/* double QRMatrix(Matrix<complex<double>,2>& ph)
  {
      BL_INT L=ph.L1; BL_INT N=ph.L2; BL_INT info;
      BL_INT lwork=-1; complex<double> work_test[1];
@@ -598,7 +694,7 @@ void gmm_magma(const Matrix<complex<double>,2>& A, const Matrix<complex<double>,
      delete[] tau;delete[] work;
 
      return det.real();
- }
+     }*/
 
  /*******************************/
  /*Diagonal array multipy matrix*/
