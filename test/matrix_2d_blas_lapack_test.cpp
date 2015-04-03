@@ -1,11 +1,12 @@
 #include "matrix_all.h"
+#include <cstdio>
 
 using namespace std;
 
 namespace matrix_hao_lib
 {
 
- void gmm_float_test()
+  /* void gmm_float_test()
  {
      Matrix<float,2> a={2,3,{0.0,3.0,2.123,
                              2.0,4.0,3.123 }};
@@ -23,7 +24,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"Gmm passed float test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed float test! \n";
- }
+ } */
 
  void gmm_magma_float_test()
  {
@@ -33,13 +34,12 @@ namespace matrix_hao_lib
                              2.0,4.0,3.123 }};
      Matrix<float,2> c(2,2);
      Matrix<float,2> c_exact={2,2,{14.861,12.630129,20.984,23.753129}};
-     cout<<a<<endl;
-     cout<<b<<endl;
-     cout<<c<<endl;
+     //cout<<a<<endl;
+     //cout<<b<<endl;
+     //cout<<c<<endl;
      gmm_magma(a,b,c);
      //cout<<setprecision(10);
      //cout<<c<<endl;
-     cout<<c<<endl;
      size_t flag=0;
      for(size_t i=0; i<c.L1; i++)
      {
@@ -49,7 +49,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! Gmm_magma failed float test! \n";
  }
 
- void gmm_double_test()
+  /* void gmm_double_test()
  {
      Matrix<double,2> a={2,3,{0.0,3.0,2.123,
                              2.0,4.0,3.123 }};
@@ -57,9 +57,9 @@ namespace matrix_hao_lib
                              2.0,4.0,3.123 }};
      Matrix<double,2> c(2,2);
      Matrix<double,2> c_exact={2,2,{14.861,12.630129,20.984,23.753129}};
-     cout<<a<<endl;
-     cout<<b<<endl;
-     cout<<c<<endl;
+     //cout<<a<<endl;
+     //cout<<b<<endl;
+     //cout<<c<<endl;
      gmm(a,b,c);
      //cout<<setprecision(10);
      //cout<<c<<endl;
@@ -71,7 +71,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"Gmm passed double test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed double test! \n";
- }
+ } */
 
  void gmm_magma_double_test()
  {
@@ -81,13 +81,12 @@ namespace matrix_hao_lib
                              2.0,4.0,3.123 }};
      Matrix<double,2> c(2,2);
      Matrix<double,2> c_exact={2,2,{14.861,12.630129,20.984,23.753129}};
-     cout<<a<<endl;
-     cout<<b<<endl;
-     cout<<c<<endl;
+     //cout<<a<<endl;
+     //cout<<b<<endl;
+     //cout<<c<<endl;
      gmm_magma(a,b,c);
      //cout<<setprecision(10);
      //cout<<c<<endl;
-     cout<<c<<endl;
      size_t flag=0;
      for(size_t i=0; i<c.L1; i++)
      {
@@ -97,7 +96,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! Gmm_magma failed double test! \n";
  }
 
- void gmm_complexfloat_test()
+  /* void gmm_complexfloat_test()
  {
      Matrix<complex<float>,2> a={2,3,{ {0.0,0.8},{3.0,4.0},{2.123,3.11},
                                        {2.0,3.3},{4.0,5.0},{3.123,4.11} } };
@@ -118,7 +117,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"Gmm passed complex float test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed complex float test! \n";
- }
+ }*/
 
 
  void gmm_magma_complexfloat_test()
@@ -132,13 +131,12 @@ namespace matrix_hao_lib
                                        { {-13.769,40.877}, {-16.551971,38.73806},
                                          {-17.756,56.71},  {-22.838971, 66.77106} }
                                        };
-     cout<<a<<endl;
-     cout<<b<<endl;
-     cout<<c<<endl;
+     //cout<<a<<endl;
+     //cout<<b<<endl;
+     //cout<<c<<endl;
      gmm_magma(a,b,c);
      //cout<<setprecision(10);
      //cout<<c<<endl;
-     cout<<c<<endl;
      size_t flag=0;
      for(size_t i=0; i<c.L1; i++)
      {
@@ -149,7 +147,7 @@ namespace matrix_hao_lib
  }
 
 
- void gmm_complexdouble_test()
+  /* void gmm_complexdouble_test()
  {
      Matrix<complex<double>,2> a={2,3,{ {0.0,0.8},{3.0,4.0},{2.123,3.11},
                                         {2.0,3.3},{4.0,5.0},{3.123,4.11} } };
@@ -169,7 +167,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"Gmm passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed complex double test! \n";
- }
+     }*/
 
  void gmm_magma_complexdouble_test()
  {
@@ -182,11 +180,11 @@ namespace matrix_hao_lib
                                        { {-13.769,40.877}, {-16.551971,38.73806}, 
                                          {-17.756,56.71},  {-22.838971, 66.77106} }
                                        }; 
-     cout<<a<<endl;
-     cout<<b<<endl;
-     cout<<c<<endl;
+     //cout<<a<<endl;
+     //cout<<b<<endl;
+     //cout<<c<<endl;
      gmm_magma(a,b,c);
-     cout<<c<<endl;
+     //cout<<c<<endl;
      size_t flag=0;
      for(size_t i=0; i<c.L1; i++)
      {
@@ -197,7 +195,7 @@ namespace matrix_hao_lib
  }
  
 
- void eigen_test()
+  /* void eigen_test()
  {
      Matrix<complex<double>,2> a={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-4.0},   {2.0,0.0},    {5.123,3.11},
@@ -231,7 +229,7 @@ namespace matrix_hao_lib
      //cout<<setprecision(16);
      //cout<<w<<endl;
      //cout<<a<<endl;
- }
+ } */
 
  void eigen_magma_test()
  {
@@ -240,11 +238,11 @@ namespace matrix_hao_lib
                                         {2.123,-3.11},{5.123,-3.11},{3,0.0}     } };
      Matrix<double,1> w(3);
      check_Hermitian(a);
-     cout << a << endl;
-     cout << w << endl;
+     //cout << a << endl;
+     //cout << w << endl;
      eigen_magma(a,w);
-     cout << a << endl;
-     cout << w << endl;
+     //cout << a << endl;
+     //cout << w << endl;
      Matrix<complex<double>,2> a_exact={3,3,{ {-0.4053433965286621, -0.3217472918461721},
                                               {-0.3733963692733272,  0.6060804552476304},    
                                               {0.47478104875888194,  0},
@@ -271,12 +269,14 @@ namespace matrix_hao_lib
      //cout<<a<<endl;
  }
 
- void LUDecomp_test()
+  /* void LUDecomp_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11}, 
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11}, 
                                         {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
      LUDecomp<complex<double>> LU(A);
+     cout << LU.A << endl;
+     cout << LU.ipiv << endl;
 
      Matrix<complex<double>,2> A_exact={3,3,{ {3,4} ,   {0.75236,0.03351999999999994}, {0.12,-0.16},
                                         {2,0},   {3.6182800000000004,3.04296},    {0.21807341113346007,-0.647707935025115},
@@ -316,7 +316,82 @@ namespace matrix_hao_lib
 
      if(flag==0) cout<<"LUDecomp passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! LUDecomp failed complex double test! \n";
- }
+ }*/
+
+
+  /********************************************************************************************************************************************************/
+  // This test function was written to diagnose the issue with LU decomposition function in magma (magma_zgetrf).
+  // The issus: magma_zgetrf will give correct value of the matrix after the LU decomposition. Howerver, the pivot value (ipiv) is 'incorrect'. 
+  // It turns out that Hao's code asks for 64-bit while compiling the code (see the Makefile or CMakeLists.txt).
+  // The MAGMA library was built in 32-bit environment. When the code is run, the size of magma_int_t became 8 instead of 4.
+  // This results in 'incorrect' value for ipiv. Wirawan found this issue by converting the value in hex. 
+  // In the mean time, we will remove the 64-bit flag from MKL and deactivate all Hao's FORTRAN_NAME functions which require MKL library. Now the environment is 32-bit.
+
+  void LUDecomp_magma_test_no_class()
+  {
+    magmaDoubleComplex *A;
+    magma_int_t *ipiv;
+    magma_int_t N=3, info;
+
+    // allocate memory
+    magma_imalloc_cpu(&ipiv, N+2);
+    magma_zmalloc_pinned(&A, N*N);
+
+    // fill in the matrix A 
+    MAGMA_Z_REAL(A[0])=1.0;
+    MAGMA_Z_IMAG(A[0])=0.0;
+    MAGMA_Z_REAL(A[1])=3.0;
+    MAGMA_Z_IMAG(A[1])=4.0;
+    MAGMA_Z_REAL(A[2])=2.123;
+    MAGMA_Z_IMAG(A[2])=3.11;
+    MAGMA_Z_REAL(A[3])=3.0;
+    MAGMA_Z_IMAG(A[3])=-2.0;
+    MAGMA_Z_REAL(A[4])=2.0;
+    MAGMA_Z_IMAG(A[4])=0.0;
+    MAGMA_Z_REAL(A[5])=5.123;
+    MAGMA_Z_IMAG(A[5])=3.11;
+    MAGMA_Z_REAL(A[6])=2.123;
+    MAGMA_Z_IMAG(A[6])=-5.11;
+    MAGMA_Z_REAL(A[7])=5.123;
+    MAGMA_Z_IMAG(A[7])=-6.11;
+    MAGMA_Z_REAL(A[8])=3.0;
+    MAGMA_Z_IMAG(A[8])=0.0;
+    cout << "N = " << N << std::endl;
+
+    // check the sizeof magma_int_t (4 or 8 for32-bit or 64-bit environment, respectively)
+    cout << "Sizeof magma_int_t = " << sizeof(magma_int_t) << std::endl;
+
+    for (int i = 0; i < N+2; ++i) ipiv[i] = -1;
+    cout << "The value of ipiv before: \n" <<  ipiv[0] << " "<< ipiv[1] << " "<< ipiv[2] <<" "<< ipiv[3] <<" " << ipiv[4] << std::endl;
+    cout << "A original value" << std::endl;
+    for(int i=0;i<N*N;i++)
+      { 
+        //printf("%f + i*%f ", MAGMA_Z_REAL(A[i]), MAGMA_Z_IMAG(A[i]));
+        cout << MAGMA_Z_REAL(A[i]) << " + i*" << MAGMA_Z_IMAG(A[i]) << "   ";
+        if ((i+1)%(N) == 0) cout << "\n";
+       }
+    cout << "\n";
+    magma_zgetrf( N, N, A, N, ipiv+1, &info);
+    cout << "info = " << info << std::endl;
+    cout << "The value of ipiv after: \n" <<  ipiv[0] << " "<< ipiv[1] << " "<< ipiv[2] <<" "<< ipiv[3] <<" " << ipiv[4] << std::endl;
+    using std::printf;
+
+    // check the value in hexadecimal representation
+    printf("In hex: %016lx %016lx %016lx %016lx %016lx\n",
+           ipiv[0], ipiv[1], ipiv[2], ipiv[3], ipiv[4]);
+    for(int i=0;i<N*N;i++)
+      { 
+        //printf("%f + i*%f ", MAGMA_Z_REAL(A[i]), MAGMA_Z_IMAG(A[i]));
+        cout << MAGMA_Z_REAL(A[i]) << " + i*" << MAGMA_Z_IMAG(A[i]) << "   ";
+        if ((i+1)%(N) == 0) cout << "\n";
+       }
+    cout << "\n";
+    magma_free_cpu(ipiv);   
+    magma_free_pinned(A);
+    if(info<0) {cout<<"The "<<info<<"-th parameter is illegal!\n"; throw std::runtime_error(" ");} 
+  }
+
+  /********************************************************************************************************************************************************/
 
  void LUDecomp_magma_test()
  {
@@ -324,10 +399,10 @@ namespace matrix_hao_lib
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11}, 
                                         {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
      
-     cout << A << endl;
+     //cout << A << endl;
      LUDecomp_magma<complex<double>> LU(A);
-     cout << LU.A << endl;
-     cout << LU.ipiv << endl;
+     //cout << LU.A << endl;
+     //cout << "The value of the pivot: " << LU.ipiv << endl;
      Matrix<complex<double>,2> A_exact={3,3,{ {3,4} ,   {0.75236,0.03351999999999994}, {0.12,-0.16},
                                         {2,0},   {3.6182800000000004,3.04296},    {0.21807341113346007,-0.647707935025115},
                                         {5.123,-6.11},{-1.05914748,4.42519664},{-0.14942307391746978,-5.208155953378981} } };
@@ -339,18 +414,26 @@ namespace matrix_hao_lib
      }
 
      LUDecomp_magma<complex<double>> LUC(LU);
+     //cout << LUC.A << endl;
+     //cout << "The value of the pivot: " << LUC.ipiv << endl;
      for(size_t i=0; i<A_exact.L1; i++)
      {
          for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
      }
 
      LUDecomp_magma<complex<double>> LUR(std::move(LU));
+     //cout << LUR.A << endl;
+     //cout << "The value of the pivot: " << LUR.ipiv << endl;
+
      for(size_t i=0; i<A_exact.L1; i++)
      {
          for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUR.A(i,j)-A_exact(i,j))>1e-13) flag++;}
      }
 
      LUDecomp_magma<complex<double>> LUEC;LUEC=LUC;
+     //cout << LUEC.A << endl;
+     //cout << "The value of the pivot: " << LUEC.ipiv << endl;
+
      for(size_t i=0; i<A_exact.L1; i++)
      {
          for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUEC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
@@ -358,6 +441,8 @@ namespace matrix_hao_lib
 
 
      LUDecomp_magma<complex<double>> LUER;LUER=std::move(LUR);
+     //cout << LUER.A << endl;
+     //cout << "The value of the pivot: " << LUER.ipiv << endl;     
      for(size_t i=0; i<A_exact.L1; i++)
      {
          for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUER.A(i,j)-A_exact(i,j))>1e-13) flag++;}
@@ -368,7 +453,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! LUDecomp_magma failed complex double test! \n";
  }
 
- void determinant_test()
+  /* void determinant_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
@@ -394,9 +479,38 @@ namespace matrix_hao_lib
      //cout<<abs(logdet-logdet_exact)<<"\n";
      //cout<<setprecision(16);
      //cout<<logdet<<"\n";
+ } */
+
+ void determinant_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     complex<double> det=determinant_magma(LUDecomp_magma<complex<double>>(A));
+     complex<double> det_exact={123.11968700000003,3.3324580000000115};
+     if(abs(det-det_exact)<1e-13) cout<<"Determinant_magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! Determinant_magma failed complex double test! \n";
+     //cout<<setprecision(16);
+     //cout<<det<<"\n";
  }
 
- void inverse_test()
+ void log_determinant_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     A*=1.e103;
+     complex<double> logdet=log_determinant_magma(LUDecomp_magma<complex<double>>(A));
+     complex<double> logdet_exact={716.3123168546207,0.027060209772387683};
+     if(abs(logdet-logdet_exact)<1e-12) cout<<"Log_determinant_magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! Log_determinant_magma failed complex double test! \n";
+     //cout<<abs(logdet-logdet_exact)<<"\n";
+     //cout<<setprecision(16);
+     //cout<<logdet<<"\n";
+ }
+
+
+  /* void inverse_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
@@ -485,7 +599,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"D_Multi_Matrix passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! D_Multi_Matrix failed complex double test! \n"; 
- }
+ } */
 
 
  void matrix_2d_blas_lapack_test()
@@ -502,12 +616,15 @@ namespace matrix_hao_lib
      eigen_magma_test();
      //LUDecomp_test();
      LUDecomp_magma_test();
-     determinant_test();
-     log_determinant_test();
-     inverse_test();
-     solve_lineq_test();
-     QRMatrix_test();
-     D_Multi_Matrix_test();
+     //LUDecomp_magma_test_no_class();
+     //determinant_test();
+     determinant_magma_test();
+     //log_determinant_test();
+     log_determinant_magma_test();
+     //inverse_test();
+     //solve_lineq_test();
+     //QRMatrix_test();
+     //D_Multi_Matrix_test();
  }
 
 } //end namespace matrix_hao_lib
