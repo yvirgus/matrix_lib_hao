@@ -4,7 +4,8 @@
 #ifdef USE_MKL
 #include "mkl.h"
 #define FORTRAN_NAME(x) x
-typedef  long long        BL_INT;
+//typedef  long long        BL_INT;
+typedef  int              BL_INT;
 typedef  float            BL_FLOAT;     
 typedef  double           BL_DOUBLE;    
 typedef  MKL_Complex8     BL_COMPLEX8;  

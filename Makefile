@@ -10,8 +10,10 @@ runtest := mpirun -np 4 runtest
 FLAGS   := -Wall -O3 -std=c++11 -I./inc
 MPIFLG  := 
 MPILIB  := 
-MFLG    := -DUSE_MKL -DMKL_ILP64 -fopenmp -m64 -I/opt/intel/mkl/include
-MLIB    := -Wl,--no-as-needed -L/opt/intel/mkl/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_gnu_thread  -ldl -lpthread -lm
+#MFLG    := -DUSE_MKL -DMKL_ILP64 -fopenmp -m64 -I/opt/intel/mkl/include
+#MLIB    := -Wl,--no-as-needed -L/opt/intel/mkl/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_gnu_thread  -ldl -lpthread -lm
+MFLG    := -DUSE_MKL -fopenmp -m64 -I/opt/intel/mkl/include
+MLIB    := -Wl,--no-as-needed -L/opt/intel/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lpthread -lm
 
 
 FLAGSALL:= $(FLAGS) $(MPIFLG) $(MFLG) 
