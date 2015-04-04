@@ -1,6 +1,7 @@
 #include <cmath>
 #include "matrix_all.h"
 //#include "magma.h"
+//#include "magma_lapack.h"
 
 using std::complex;
 using std::conj;
@@ -632,7 +633,7 @@ template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<
 
 
  /*********************************************************************************************************************/
- /*Inverse of  Matrix: If determinant of the matrix is outof machine precision, inverse should be fine, since it solve*
+ /*Inverse of  Matrix: If determinant of the matrix is out of machine precision, inverse should be fine, since it solve*
   *The linear equation, every small value is well defined                                                             */
  /*********************************************************************************************************************/
 /* Matrix<complex<double>,2> inverse(const LUDecomp<complex<double>>& x)
@@ -650,6 +651,59 @@ template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<
 
      return A;
      }*/
+
+ /*********************************************************************************************************************/
+ /*Inverse of  Matrix: If determinant of the matrix is out of machine precision, inverse should be fine, since it solve*
+  *The linear equation, every small value is well defined                                                             */      /* Using MAGMA library */
+ /*********************************************************************************************************************/
+ Matrix<complex<double>,2> inverse_magma(const LUDecomp_magma<complex<double>>& x)
+ {
+     Matrix<complex<double>,2> A=x.A; //We know x.A own the matrix
+     magmaDoubleComplex *work, tmp;
+     magmaDoubleComplex_ptr d_A , dwork;
+     magma_int_t N=A.L1, lda, ldda, info, lwork= -1, ldwork;
+     lda = N;
+     ldda = ((lda+31)/32)*32;
+     ldwork = N * magma_get_zgetri_nb(N); // magma_get_zgetri_nb optimizes the blocksize
+
+     // query for workspace size
+     //cout << info << std::endl;
+     lapackf77_zgetri( &N, NULL, &lda, NULL, &tmp, &lwork, &info );
+     //magma_zgetri_gpu( N, NULL, lda, NULL, tmp, lwork, &info );
+     //cout << info << std::endl; 
+     lwork = int( MAGMA_Z_REAL(tmp));
+     
+     magma_zmalloc_cpu( &work, lwork );
+     magma_zmalloc( &d_A, ldda*N );
+     magma_zmalloc( &dwork, ldwork );
+
+     // copy matrix from CPU to GPU
+     magma_zsetmatrix( N, N, _cast_Zptr_magma(A.base_array), lda, d_A, ldda );
+     
+     // calculate the inverse matrix with zgetri 
+     //cout << info << std::endl;
+     magma_zgetri_gpu( N, d_A, ldda, x.ipiv.base_array, dwork, ldwork, &info );
+     //cout << info << std::endl;
+     // copy matrix from GPU to CPU
+     magma_zgetmatrix( N, N, d_A, ldda, _cast_Zptr_magma(A.base_array), lda );
+
+     magma_free( d_A );
+     magma_free( dwork );
+     magma_free_cpu( work );
+
+     /*     magma_int_t lwork=-1; complex<double> work_test[1];
+
+
+     FORTRAN_NAME(zgetri)(&N,(BL_COMPLEX16* )A.base_array,&N,x.ipiv.base_array,(BL_COMPLEX16* )work_test,&lwork,&info);
+
+     lwork=lround(work_test[0].real());
+     complex<double>* work= new complex<double>[lwork];
+     FORTRAN_NAME(zgetri)(&N,(BL_COMPLEX16* )A.base_array,&N,x.ipiv.base_array,(BL_COMPLEX16* )work,&lwork,&info);
+     delete[] work; */
+
+     return A;
+ }
+
 
  /******************************************************/
  /*Solve Linear Equation of the matrix A*M=B: M=A^{-1}B*/
