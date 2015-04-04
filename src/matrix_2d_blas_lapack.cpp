@@ -666,11 +666,16 @@ template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<
      ldda = ((lda+31)/32)*32;
      ldwork = N * magma_get_zgetri_nb(N); // magma_get_zgetri_nb optimizes the blocksize
 
+
+     /* Calling lapackf77_zgetri requires magma_lapack.h which has a conflict with Hao's functions. 
+        Query for a workspace size with magma_zgetri_gpu will give illegal info value (-6), although the final result is still correct for the current test case. */
      // query for workspace size
      //cout << info << std::endl;
      lapackf77_zgetri( &N, NULL, &lda, NULL, &tmp, &lwork, &info );
      //magma_zgetri_gpu( N, NULL, lda, NULL, tmp, lwork, &info );
-     //cout << info << std::endl; 
+     //cout << info << std::endl;
+
+ 
      lwork = int( MAGMA_Z_REAL(tmp));
      
      magma_zmalloc_cpu( &work, lwork );
