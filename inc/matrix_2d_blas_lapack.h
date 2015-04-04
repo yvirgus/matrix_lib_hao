@@ -2,6 +2,7 @@
 #define MATRIX_HAO_BLAS_LAPACK
 
 #include "magma.h"
+#include "magma_lapack.h"
 #include "matrix_define.h"
 
 namespace matrix_hao_lib
@@ -109,6 +110,12 @@ namespace matrix_hao_lib
  /*Inverse of  Matrix*/
  /********************/
  /* Matrix<std::complex<double>,2> inverse(const LUDecomp<std::complex<double>>& x);*/
+
+
+ /********************/
+ /*Inverse of  Matrix*/    /* Using MAGMA library */
+ /********************/
+ Matrix<std::complex<double>,2> inverse_magma(const LUDecomp_magma<std::complex<double>>& x);
 
 
  /******************************************************/
