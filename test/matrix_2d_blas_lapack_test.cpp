@@ -559,7 +559,7 @@ namespace matrix_hao_lib
 
  } 
 
- void QRMatrix_test()
+ Void QRMatrix_test()
  {
      Matrix<complex<double>,2> A={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
                                         {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
@@ -601,6 +601,31 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! D_Multi_Matrix failed complex double test! \n"; 
  } */
 
+ void inverse_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     Matrix<complex<double>,2> A_exact={3,3,{ {-0.31516333912326305,0.13336022037456957} , 
+                                              {0.16746685439563874,-0.0779491606298965}, 
+                                              {-0.005504176768078849,0.1918486231848867},
+                                              {0.1412286826747599,-0.11408929794801193},   
+                                              {-0.1402834127458906,0.038283792754219295},    
+                                              {0.061029436341995695,0.01438130659499342},
+                                              {-0.01293596267860185,-0.1487405620815458},
+                                              {0.17584867623524927,-0.010672609392757534},
+                                              {-0.12306156095719788,-0.04540218264765162} } };
+     A=inverse_magma(LUDecomp_magma<complex<double>>(A));
+     //cout << A << std::endl;
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+     if(flag==0) cout<<"Inverse_magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! Inverse_magma failed complex double test! \n";
+ }
+
 
  void matrix_2d_blas_lapack_test()
  {
@@ -622,6 +647,7 @@ namespace matrix_hao_lib
      //log_determinant_test();
      log_determinant_magma_test();
      //inverse_test();
+     inverse_magma_test();
      //solve_lineq_test();
      //QRMatrix_test();
      //D_Multi_Matrix_test();
