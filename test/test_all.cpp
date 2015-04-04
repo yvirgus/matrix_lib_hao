@@ -1,5 +1,6 @@
 #include "matrix_all.h"
 #include "magma.h"
+#include "magma_lapack.h"
 
 namespace matrix_hao_lib
 {
