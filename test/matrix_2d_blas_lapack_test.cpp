@@ -6,7 +6,7 @@ using namespace std;
 namespace matrix_hao_lib
 {
 
-  /* void gmm_float_test()
+ void gmm_float_test()
  {
      Matrix<float,2> a={2,3,{0.0,3.0,2.123,
                              2.0,4.0,3.123 }};
@@ -24,7 +24,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"Gmm passed float test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed float test! \n";
- } */
+ }
 
  void gmm_magma_float_test()
  {
@@ -49,7 +49,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! Gmm_magma failed float test! \n";
  }
 
-  /* void gmm_double_test()
+ void gmm_double_test()
  {
      Matrix<double,2> a={2,3,{0.0,3.0,2.123,
                              2.0,4.0,3.123 }};
@@ -64,14 +64,14 @@ namespace matrix_hao_lib
      //cout<<setprecision(10);
      //cout<<c<<endl;
      size_t flag=0;
-     cout<<c<<endl;
+     //cout<<c<<endl;
      for(size_t i=0; i<c.L1; i++)
      {
          for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-13) flag++;}
      }
      if(flag==0) cout<<"Gmm passed double test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed double test! \n";
- } */
+ }
 
  void gmm_magma_double_test()
  {
@@ -96,7 +96,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! Gmm_magma failed double test! \n";
  }
 
-  /* void gmm_complexfloat_test()
+ void gmm_complexfloat_test()
  {
      Matrix<complex<float>,2> a={2,3,{ {0.0,0.8},{3.0,4.0},{2.123,3.11},
                                        {2.0,3.3},{4.0,5.0},{3.123,4.11} } };
@@ -117,7 +117,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"Gmm passed complex float test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed complex float test! \n";
- }*/
+ }
 
 
  void gmm_magma_complexfloat_test()
@@ -147,7 +147,7 @@ namespace matrix_hao_lib
  }
 
 
-  /* void gmm_complexdouble_test()
+ void gmm_complexdouble_test()
  {
      Matrix<complex<double>,2> a={2,3,{ {0.0,0.8},{3.0,4.0},{2.123,3.11},
                                         {2.0,3.3},{4.0,5.0},{3.123,4.11} } };
@@ -167,7 +167,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"Gmm passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! Gmm failed complex double test! \n";
-     }*/
+ }
 
  void gmm_magma_complexdouble_test()
  {
@@ -195,7 +195,7 @@ namespace matrix_hao_lib
  }
  
 
-  /* void eigen_test()
+ void eigen_test()
  {
      Matrix<complex<double>,2> a={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-4.0},   {2.0,0.0},    {5.123,3.11},
@@ -229,7 +229,7 @@ namespace matrix_hao_lib
      //cout<<setprecision(16);
      //cout<<w<<endl;
      //cout<<a<<endl;
- } */
+ }
 
  void eigen_magma_test()
  {
@@ -269,7 +269,7 @@ namespace matrix_hao_lib
      //cout<<a<<endl;
  }
 
-  /* void LUDecomp_test()
+ void LUDecomp_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11}, 
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11}, 
@@ -316,7 +316,7 @@ namespace matrix_hao_lib
 
      if(flag==0) cout<<"LUDecomp passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! LUDecomp failed complex double test! \n";
- }*/
+ }
 
 
   /********************************************************************************************************************************************************/
@@ -453,7 +453,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! LUDecomp_magma failed complex double test! \n";
  }
 
-  /* void determinant_test()
+ void determinant_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
@@ -479,7 +479,7 @@ namespace matrix_hao_lib
      //cout<<abs(logdet-logdet_exact)<<"\n";
      //cout<<setprecision(16);
      //cout<<logdet<<"\n";
- } */
+ }
 
  void determinant_magma_test()
  {
@@ -510,7 +510,7 @@ namespace matrix_hao_lib
  }
 
 
-  /* void inverse_test()
+ void inverse_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
@@ -559,7 +559,7 @@ namespace matrix_hao_lib
 
  } 
 
- Void QRMatrix_test()
+ void QRMatrix_test()
  {
      Matrix<complex<double>,2> A={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
                                         {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
@@ -599,7 +599,7 @@ namespace matrix_hao_lib
      }
      if(flag==0) cout<<"D_Multi_Matrix passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! D_Multi_Matrix failed complex double test! \n"; 
- } */
+ }
 
  void inverse_magma_test()
  {
@@ -626,29 +626,57 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! Inverse_magma failed complex double test! \n";
  }
 
+ void solve_lineq_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     Matrix<complex<double>,2> B={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
+                                        {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
+     Matrix<complex<double>,2> X_exact={3,2,{ {0.785989996146147, 0.12584834096778363} ,   
+                                              {0.3050317378766687,-0.22890518276854455},    
+                                              {-0.1429470443202702,0.20747587687923086},
+                                              {0.6345942167676883, 1.253141477086266},   
+                                              {0.825768240961444,-0.8208234397212029},   
+                                              {0.6299516251873555,0.037643960766659545},} };
+     //cout << A << std::endl;
+     //cout << B << std::endl;     
+     Matrix<complex<double>,2> X=solve_lineq_magma(LUDecomp_magma<complex<double>>(A),B);
+     //cout << X << std::endl;
+
+     size_t flag=0;
+     for(size_t i=0; i<X_exact.L1; i++)
+     {
+         for(size_t j=0; j<X_exact.L2; j++) {if(abs(X(i,j)-X_exact(i,j))>1e-13) flag++;}
+     }
+     if(flag==0) cout<<"Solve_lineq_magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! Solve_lineq_magma failed complex double test! \n";
+ } 
+
 
  void matrix_2d_blas_lapack_test()
  {
      //gmm_float_test();
-     gmm_magma_float_test();
-     //     gmm_double_test();
-     gmm_magma_double_test();
-     //     gmm_complexfloat_test();
-     gmm_magma_complexfloat_test();
-     //     gmm_complexdouble_test();
-     gmm_magma_complexdouble_test();
+     //gmm_magma_float_test();
+     //gmm_double_test();
+     //gmm_magma_double_test();
+     //gmm_complexfloat_test();
+     //gmm_magma_complexfloat_test();
+     //gmm_complexdouble_test();
+     //gmm_magma_complexdouble_test();
      //eigen_test();
-     eigen_magma_test();
+     //eigen_magma_test();
      //LUDecomp_test();
-     LUDecomp_magma_test();
+     //LUDecomp_magma_test();
      //LUDecomp_magma_test_no_class();
      //determinant_test();
-     determinant_magma_test();
+     //determinant_magma_test();
      //log_determinant_test();
-     log_determinant_magma_test();
+     //log_determinant_magma_test();
      //inverse_test();
-     inverse_magma_test();
+     //inverse_magma_test();
      //solve_lineq_test();
+     solve_lineq_magma_test();
      //QRMatrix_test();
      //D_Multi_Matrix_test();
  }
