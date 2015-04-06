@@ -671,11 +671,13 @@ template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<
         Query for a workspace size with magma_zgetri_gpu will give illegal info value (-6), although the final result is still correct for the current test case. */
      // query for workspace size
      //cout << info << std::endl;
-     lapackf77_zgetri( &N, NULL, &lda, NULL, &tmp, &lwork, &info );
+     //lapackf77_zgetri( &N, NULL, &lda, NULL, &tmp, &lwork, &info );
      //magma_zgetri_gpu( N, NULL, lda, NULL, tmp, lwork, &info );
+
+     // We can also use lapack zgetri function from MKL 
+     FORTRAN_NAME(zgetri)( &N, NULL, &lda, NULL, reinterpret_cast<BL_COMPLEX16*>( &tmp ), &lwork, &info );
      //cout << info << std::endl;
 
- 
      lwork = int( MAGMA_Z_REAL(tmp));
      
      magma_zmalloc_cpu( &work, lwork );
@@ -695,16 +697,6 @@ template<> LUDecomp_magma<complex<double>>::LUDecomp_magma(const Matrix<complex<
      magma_free( d_A );
      magma_free( dwork );
      magma_free_cpu( work );
-
-     /*     magma_int_t lwork=-1; complex<double> work_test[1];
-
-
-     FORTRAN_NAME(zgetri)(&N,(BL_COMPLEX16* )A.base_array,&N,x.ipiv.base_array,(BL_COMPLEX16* )work_test,&lwork,&info);
-
-     lwork=lround(work_test[0].real());
-     complex<double>* work= new complex<double>[lwork];
-     FORTRAN_NAME(zgetri)(&N,(BL_COMPLEX16* )A.base_array,&N,x.ipiv.base_array,(BL_COMPLEX16* )work,&lwork,&info);
-     delete[] work; */
 
      return A;
  }
