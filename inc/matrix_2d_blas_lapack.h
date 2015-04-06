@@ -2,7 +2,7 @@
 #define MATRIX_HAO_BLAS_LAPACK
 
 #include "magma.h"
-#include "magma_lapack.h"
+/*#include "magma_lapack.h"*/
 #include "matrix_define.h"
 
 namespace matrix_hao_lib
