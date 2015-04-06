@@ -798,19 +798,22 @@ double QRMatrix_magma(Matrix<complex<double>,2>& ph)
 
      lda = L;
      nb = magma_get_zgeqrf_nb(L);
+     //cout << "nb: " << nb << std::endl;
      
-     cout << info << std::endl;
-     FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info )
-     cout << info << std::endl;
+     //cout << info << std::endl;
+     FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info );
+     //cout << info << std::endl;
      lwork = (magma_int_t)MAGMA_Z_REAL( tmp[0] );
-     lwork = max( lwork, max( N*nb, 2*nb*nb ));
+     //cout << "lwork: " << lwork << std::endl;
+     lwork = std::max( lwork, std::max( N*nb, 2*nb*nb ));
+     //cout << "lwork: " << lwork << std::endl;
 
      // Allocate memory 
-     magma_zmalloc(&tau, N);  // should be min(L,N) but N is always smaller 
-     magma_zmalloc(&h_work, lwork);
+     magma_zmalloc_cpu(&tau, N);  // should be min(L,N) but N is always smaller 
+     magma_zmalloc_cpu(&h_work, lwork);
 
+     // perform zgeqrf
      magma_zgeqrf(L, N, _cast_Zptr_magma(ph.base_array), lda, tau, h_work, lwork, &info);
-
 
      if(info!=0) {cout<<"QR run is not suceesful: "<<info<<"-th parameter is illegal! \n"; throw std::runtime_error(" ");}
 
@@ -821,28 +824,9 @@ double QRMatrix_magma(Matrix<complex<double>,2>& ph)
      if(det.real()<0) {det=-det; for(size_t i=0; i<ph.L1; i++) ph(i,0)=-ph(i,0);}
 
      // free memory 
-     magma_free_cpu( tau )
-     magma_free_cpu( h_work )
+     magma_free_cpu( tau );
+     magma_free_cpu( h_work );
      
-       /*     BL_INT L=ph.L1; BL_INT N=ph.L2; BL_INT info;
-     BL_INT lwork=-1; complex<double> work_test[1];
-     complex<double>* tau= new complex<double>[N];
-
-     FORTRAN_NAME(zgeqrf) (&L,&N,(BL_COMPLEX16* )ph.base_array,&L,(BL_COMPLEX16* )tau,(BL_COMPLEX16* )work_test,&lwork,&info);
-
-     lwork=lround(work_test[0].real());
-     complex<double>* work= new complex<double>[lwork];
-     FORTRAN_NAME(zgeqrf) (&L,&N,(BL_COMPLEX16* )ph.base_array,&L,(BL_COMPLEX16* )tau,(BL_COMPLEX16* )work,&lwork,&info);
-     if(info!=0) {cout<<"QR run is not suceesful: "<<info<<"-th parameter is illegal! \n"; throw std::runtime_error(" ");}
-
-     complex<double> det={1.0,0.0}; for (size_t i=0; i<ph.L2; i++)  det*=ph(i,i); 
-
-     FORTRAN_NAME(zungqr) (&L,&N,&N,(BL_COMPLEX16* )ph.base_array,&L,(BL_COMPLEX16* )tau,(BL_COMPLEX16* )work,&lwork,&info);
-
-     if(det.real()<0) {det=-det; for(size_t i=0; i<ph.L1; i++) ph(i,0)=-ph(i,0);}
-
-     delete[] tau;delete[] work;*/
-
      return det.real();
  }
 
