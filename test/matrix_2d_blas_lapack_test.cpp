@@ -653,6 +653,32 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! Solve_lineq_magma failed complex double test! \n";
  } 
 
+ void QRMatrix_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
+                                        {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
+     cout<<A<<endl;
+     double det=QRMatrix_magma(A);
+     Matrix<complex<double>,2> A_exact={3,2,{ {-0.26392384387316437, 0} ,   
+                                              {-0.3958857658097466 , 0.6598096096829109},    
+                                              {-0.41211708220794624, 0.41040157722277065},
+                                              {0.20568020122880237 , 0.7338652779407804},   
+                                              {-0.41851770493832796, 0.22064009932009565},    
+                                              {0.3071492824057953  ,-0.3177382636670606},} };
+     double det_exact=51.76794728400964;
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(abs(A(i,j))-abs(A_exact(i,j)))>1e-12) flag++;}
+     }
+     if(abs(det-det_exact)>1e-12) flag++;
+     if(flag==0) cout<<"QRMatrix_magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! QRMatrix_magma failed complex double test! \n";
+     //cout<<setprecision(16);
+     cout<<A<<endl;
+     cout<<det<<endl;
+ }
+
 
  void matrix_2d_blas_lapack_test()
  {
@@ -676,8 +702,9 @@ namespace matrix_hao_lib
      //inverse_test();
      //inverse_magma_test();
      //solve_lineq_test();
-     solve_lineq_magma_test();
+     //solve_lineq_magma_test();
      //QRMatrix_test();
+     QRMatrix_magma_test();
      //D_Multi_Matrix_test();
  }
 
