@@ -4,25 +4,25 @@
 /*#define "lib_hao/matrix_2d.h"
   #define "lib_hao/blas_lapack_trait.h"*/
 
-#define "matrix_2d.h"
-#define "blas_lapack_trait.h"
+#include "matrix_2d.h"
+#include "lib_hao/blas_lapack_traits.h"
 
 namespace matrix_hao_lib
 {
 
-template <_Int_t>
+template <typename _Int_t>
 class linalg
 {
 public:
     // This encapsulates the real linear algebra library implementation
-    typedef blas_lapack_trait<_Int_t> linalg_t;
-    typedef typename blas_lapack_trait<_Int_t>::int_t int_t;
+    typedef blas_lapack_traits<_Int_t> linalg_t;
+    typedef typename blas_lapack_traits<_Int_t>::int_t int_t;
 
 protected:
     linalg_t *_impl;
 
 public:
-    linalg(blas_lapack_trait<_Int_t> *linalg_impl)
+    linalg(blas_lapack_traits<_Int_t> *linalg_impl)
         : _impl(linalg_impl)
     {}
 

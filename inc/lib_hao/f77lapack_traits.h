@@ -25,6 +25,9 @@ class f77lapack_traits: public blas_lapack_traits<_Int_t>
 //  as defined in Fortran 77 style.
 {
 public:
+    typedef typename blas_lapack_traits<_Int_t>::int_t int_t;
+    typedef typename blas_lapack_traits<_Int_t>::int_ptr_t int_ptr_t;
+
     typedef float single_t;
     typedef double double_t;
     // define ALL numerical datatypes and their pointer counterparts
@@ -54,11 +57,11 @@ public:
     }
     static ccomplex_ptr_t _cast_Cptr(const std::complex<float> *A)
     {
-        return reinterpret_cast<ccomplex_ptr_t>(A);
+        return reinterpret_cast<ccomplex_ptr_t>(const_cast<std::complex<float> *>(A));
     }
     static zcomplex_ptr_t _cast_Zptr(const std::complex<double> *A)
     {
-        return reinterpret_cast<zcomplex_ptr_t>(A);
+        return reinterpret_cast<zcomplex_ptr_t>(const_cast<std::complex<double> *>(A));
     }
 
     // Dispatch functions: all of these define the are pure virtual

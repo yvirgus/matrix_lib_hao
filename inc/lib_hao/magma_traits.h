@@ -16,6 +16,9 @@ class magma_traits: public blas_lapack_traits<_Int_t>
 //  This is the wrapper to the REAL implementation of MAGMA
 {
 public:
+    typedef typename blas_lapack_traits<_Int_t>::int_t int_t;
+    typedef typename blas_lapack_traits<_Int_t>::int_ptr_t int_ptr_t;
+
     typedef float single_t;
     typedef double double_t;
     // define ALL numerical datatypes and their pointer counterparts
@@ -38,17 +41,17 @@ public:
     }
     static ccomplex_ptr_t _cast_Cptr(const std::complex<float> *A)
     {
-        return reinterpret_cast<ccomplex_ptr_t>(A);
+        return reinterpret_cast<ccomplex_ptr_t>(const_cast<std::complex<float> *>(A));
     }
     static zcomplex_ptr_t _cast_Zptr(const std::complex<double> *A)
     {
-        return reinterpret_cast<zcomplex_ptr_t>(A);
+        return reinterpret_cast<zcomplex_ptr_t>(const_cast<std::complex<double> *>(A));
     }
     static ccomplex_t _cast_C(const std::complex<float> &Z)
     {  
         using std::real;
         using std::imag;
-        return MAGMA_Z_MAKE(real(Z), imag(Z));
+        return MAGMA_C_MAKE(real(Z), imag(Z));
     }
     static zcomplex_t _cast_Z(const std::complex<double> &Z)
     {  
@@ -64,46 +67,34 @@ public:
               const float *B, int_t ldb,
               float beta, float *C, int_t ldc) // virtual
     {
-      //magma_int_t M, N, K;
-        magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
-        magma_int_t Am, An, Bm, Bn;
-        magma_trans_t transA = magma_trans_const(trans_A),
-                      transB = magma_trans_const(trans_B);
+        magma_int_t LDDA, LDDB, LDDC;
+        magma_int_t Am, An, Bm, Bn, Cm, Cn;
+        magma_trans_t transA = magma_trans_const(trans_A), transB = magma_trans_const(trans_B);
         magmaFloat_ptr d_A, d_B, d_C;
+
+        // Note: Am = number of physical rows of A matrix
+        // Note: An = number of physical columns of A matrix
+        Am = (transA == MagmaNoTrans) ? M : K;
+        An = (transA == MagmaNoTrans) ? K : M;
+        Bm = (transB == MagmaNoTrans) ? K : N;
+        Bn = (transB == MagmaNoTrans) ? N : K;
+        Cm = M;
+        Cn = N;
+
    
-        //M=(transA==MagmaNoTrans) ? A.L1:A.L2;
-        //K=(transA==MagmaNoTrans) ? A.L2:A.L1;
-        //N=(transB==MagmaNoTrans) ? B.L2:B.L1;
-        if ( transA == MagmaNoTrans ) {
-          LDA = Am = M;
-          An = K;
-        } else {
-          LDA = Am = K;
-          An = M;
-        }
-   
-        if ( transB == MagmaNoTrans ) {
-          LDB = Bm = K;
-          Bn = N;
-        } else {
-          LDB = Bm = N;
-          Bn = K;
-        }
-        LDC = M;
-   
-        LDDA = ((LDA+31)/32)*32;
-        LDDB = ((LDB+31)/32)*32;
-        LDDC = ((LDC+31)/32)*32;
+        LDDA = ((Am+31)/32)*32;
+        LDDB = ((Bm+31)/32)*32;
+        LDDC = ((Cm+31)/32)*32;
         
         // Allocate memory for the matrices on GPU
         magma_smalloc(&d_A, LDDA*An );
         magma_smalloc(&d_B, LDDB*Bn );
-        magma_smalloc(&d_C, LDDC*N );
+        magma_smalloc(&d_C, LDDC*Cn );
    
         // Copy data from host (CPU) to device (GPU)
-        magma_ssetmatrix( Am, An, A.base_array, LDA, d_A, LDDA );
-        magma_ssetmatrix( Bm, Bn, B.base_array, LDB, d_B, LDDB );
-        magma_ssetmatrix( M, N, C.base_array, LDC, d_C, LDDC );
+        magma_ssetmatrix( Am, An, A, lda, d_A, LDDA );
+        magma_ssetmatrix( Bm, Bn, B, ldb, d_B, LDDB );
+        magma_ssetmatrix( Cm, Cn, C, ldc, d_C, LDDC );
         
         magma_sgemm(transA, transB, M, N, K,
                     alpha, d_A, LDDA,
@@ -111,7 +102,7 @@ public:
                     beta,  d_C, LDDC);
    
         // Copy solution from device (GPU) to host (CPU)
-        magma_sgetmatrix( M, N, d_C, LDDC, C.base_array, LDC );
+        magma_sgetmatrix( Cm, Cn, d_C, LDDC, C, ldc );
    
         // Free memory on GPU
         magma_free(d_A);
@@ -125,14 +116,20 @@ public:
               const double *B, int_t ldb,
               double beta, double *C, int_t ldc) // virtual
     {
-        magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
-        magma_int_t Am, An, Bm, Bn;
-        magma_trans_t transA = magma_trans_const(TRANSA), transB = magma_trans_const(TRANSB);
+        magma_int_t LDDA, LDDB, LDDC;
+        magma_int_t Am, An, Bm, Bn, Cm, Cn;
+        magma_trans_t transA = magma_trans_const(trans_A), transB = magma_trans_const(trans_B);
         magmaDouble_ptr d_A, d_B, d_C;
-        //M=(transA==MagmaNoTrans) ? A.L1:A.L2;
-        //K=(transA==MagmaNoTrans) ? A.L2:A.L1;
-        //N=(transB==MagmaNoTrans) ? B.L2:B.L1;
-        
+
+        // Note: Am = number of physical rows of A matrix
+        // Note: An = number of physical columns of A matrix
+        Am = (transA == MagmaNoTrans) ? M : K;
+        An = (transA == MagmaNoTrans) ? K : M;
+        Bm = (transB == MagmaNoTrans) ? K : N;
+        Bn = (transB == MagmaNoTrans) ? N : K;
+        Cm = M;
+        Cn = N;
+        /*
         if ( transA == MagmaNoTrans ) {
           LDA = Am = M;
           An = K;
@@ -147,20 +144,21 @@ public:
           LDB = Bm = N;
           Bn = K;
         }
-        LDC = M;
-        LDDA = ((LDA+31)/32)*32;
-        LDDB = ((LDB+31)/32)*32;
-        LDDC = ((LDC+31)/32)*32;
+        */
+        LDDA = ((Am+31)/32)*32;
+        LDDB = ((Bm+31)/32)*32;
+        LDDC = ((Cm+31)/32)*32;
 
         // Allocate memory for the matrices on GPU
-        magma_dmalloc(&d_A, LDDA*An );
-        magma_dmalloc(&d_B, LDDB*Bn );
-        magma_dmalloc(&d_C, LDDC*N );
+        magma_dmalloc(&d_A, LDDA*An);
+        magma_dmalloc(&d_B, LDDB*Bn);
+        magma_dmalloc(&d_C, LDDC*Cn);
 
         // Copy data from host (CPU) to device (GPU)
-        magma_dsetmatrix( Am, An, A.base_array, LDA, d_A, LDDA );
-        magma_dsetmatrix( Bm, Bn, B.base_array, LDB, d_B, LDDB );
-        magma_dsetmatrix( M, N, C.base_array, LDC, d_C, LDDC );
+        magma_dsetmatrix(Am, An, A, lda, d_A, LDDA);
+        magma_dsetmatrix(Bm, Bn, B, ldb, d_B, LDDB);
+        // FIXME: If beta == 0, no need to do dsetmatrix-->just zero out "*d_C"
+        magma_dsetmatrix(Cm, Cn, C, ldc, d_C, LDDC);
 
         magma_dgemm(transA, transB, M, N, K,
                     alpha, d_A, LDDA,
@@ -168,7 +166,7 @@ public:
                     beta,  d_C, LDDC);
 
         // Copy solution from device (GPU) to host (CPU)
-        magma_dgetmatrix( M, N, d_C, LDDC, C.base_array, LDC );
+        magma_dgetmatrix(Cm, Cn, d_C, LDDC, C, ldc);
 
         // Free memory on GPU
         magma_free(d_A);
@@ -182,42 +180,34 @@ public:
               const std::complex<float> *B, int_t ldb,
               std::complex<float> beta, std::complex<float> *C, int_t ldc) // virtual
     {
-        magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
-        magma_int_t Am, An, Bm, Bn;
-        magma_trans_t transA = magma_trans_const(TRANSA), transB = magma_trans_const(TRANSB);
+        magma_int_t LDDA, LDDB, LDDC;
+        magma_int_t Am, An, Bm, Bn, Cm, Cn;
+        magma_trans_t transA = magma_trans_const(trans_A), transB = magma_trans_const(trans_B);
         magmaFloatComplex_ptr d_A, d_B, d_C;
-        
-        if ( transA == MagmaNoTrans ) {
-            LDA = Am = M;
-            An = K;
-        } else {
-            LDA = Am = K;
-            An = M;
-        }
 
-        if ( transB == MagmaNoTrans ) {
-            LDB = Bm = K;
-            Bn = N;
-        } else {
-            LDB = Bm = N;
-            Bn = K;
-        }
-        LDC = M;
+        // Note: Am = number of physical rows of A matrix
+        // Note: An = number of physical columns of A matrix
+        Am = (transA == MagmaNoTrans) ? M : K;
+        An = (transA == MagmaNoTrans) ? K : M;
+        Bm = (transB == MagmaNoTrans) ? K : N;
+        Bn = (transB == MagmaNoTrans) ? N : K;
+        Cm = M;
+        Cn = N;
 
-        LDDA = ((LDA+31)/32)*32;
-        LDDB = ((LDB+31)/32)*32;
-        LDDC = ((LDC+31)/32)*32;
+        LDDA = ((Am+31)/32)*32;
+        LDDB = ((Bm+31)/32)*32;
+        LDDC = ((Cm+31)/32)*32;
         
         // Allocate memory for the matrices on GPU     
         magma_cmalloc(&d_A, LDDA*An );
         magma_cmalloc(&d_B, LDDB*Bn );
-        magma_cmalloc(&d_C, LDDC*N );
+        magma_cmalloc(&d_C, LDDC*Cn );
 
         // Copy data from host (CPU) to device (GPU)
         // Casting is required from std:complex<float> to  magmaFloatComplex;
-        magma_csetmatrix( Am, An, _cast_Cptr(A.base_array), LDA, d_A, LDDA );
-        magma_csetmatrix( Bm, Bn, _cast_Cptr(B.base_array), LDB, d_B, LDDB );
-        magma_csetmatrix( M, N, _cast_Cptr(C.base_array), LDC, d_C, LDDC );
+        magma_csetmatrix( Am, An, _cast_Cptr(A), lda, d_A, LDDA );
+        magma_csetmatrix( Bm, Bn, _cast_Cptr(B), ldb, d_B, LDDB );
+        magma_csetmatrix( Cm, Cn, _cast_Cptr(C), ldc, d_C, LDDC );
       
         magma_cgemm(transA, transB, M, N, K,
                     _cast_C(alpha), d_A, LDDA,
@@ -225,7 +215,7 @@ public:
                     _cast_C(beta),  d_C, LDDC);
 
         // Copy solution from device (GPU) to host (CPU)
-        magma_cgetmatrix( M, N, d_C, LDDC, _cast_Cptr(C.base_array), LDC );
+        magma_cgetmatrix( Cm, Cn, d_C, LDDC, _cast_Cptr(C), ldc );
 
         // Free memory on GPU
         magma_free(d_A);
@@ -238,39 +228,34 @@ public:
               const std::complex<double> *B, int_t ldb,
               std::complex<double> beta, std::complex<double> *C, int_t ldc) // virtual
     {
-        magma_int_t LDA, LDB, LDC, LDDA, LDDB, LDDC;
-        magma_int_t Am, An, Bm, Bn;
-        magma_trans_t transA = magma_trans_const(TRANSA), transB = magma_trans_const(TRANSB);
+        magma_int_t LDDA, LDDB, LDDC;
+        magma_int_t Am, An, Bm, Bn, Cm, Cn;
+        magma_trans_t transA = magma_trans_const(trans_A), transB = magma_trans_const(trans_B);
         magmaDoubleComplex_ptr d_A, d_B, d_C;
 
-        if ( transA == MagmaNoTrans ) {
-            LDA = Am = M;
-            An = K;
-        } else {
-            LDA = Am = K;
-            An = M;
-        }
-        if ( transB == MagmaNoTrans ) {
-            LDB = Bm = K;
-            Bn = N;
-        } else {
-            LDB = Bm = N;
-            Bn = K;
-        }
-        LDC = M;
-        LDDA = ((LDA+31)/32)*32;
-        LDDB = ((LDB+31)/32)*32;
-        LDDC = ((LDC+31)/32)*32;
+        // Note: Am = number of physical rows of A matrix
+        // Note: An = number of physical columns of A matrix
+        Am = (transA == MagmaNoTrans) ? M : K;
+        An = (transA == MagmaNoTrans) ? K : M;
+        Bm = (transB == MagmaNoTrans) ? K : N;
+        Bn = (transB == MagmaNoTrans) ? N : K;
+        Cm = M;
+        Cn = N;
+
+        LDDA = ((Am+31)/32)*32;
+        LDDB = ((Bm+31)/32)*32;
+        LDDC = ((Cm+31)/32)*32;
+
         // Allocate memory for the matrices on GPU     
         magma_zmalloc(&d_A, LDDA*An );
         magma_zmalloc(&d_B, LDDB*Bn );
-        magma_zmalloc(&d_C, LDDC*N );
+        magma_zmalloc(&d_C, LDDC*Cn );
 
         // Copy data from host (CPU) to device (GPU)
         // Casting is required from std:complex<double> to  magmaDoubleComplex;
-        magma_zsetmatrix( Am, An, _cast_Zptr(A.base_array), LDA, d_A, LDDA );
-        magma_zsetmatrix( Bm, Bn, _cast_Zptr(B.base_array), LDB, d_B, LDDB );
-        magma_zsetmatrix( M, N, _cast_Zptr(C.base_array), LDC, d_C, LDDC );
+        magma_zsetmatrix( Am, An, _cast_Zptr(A), lda, d_A, LDDA );
+        magma_zsetmatrix( Bm, Bn, _cast_Zptr(B), ldb, d_B, LDDB );
+        magma_zsetmatrix( Cm, Cn, _cast_Zptr(C), ldc, d_C, LDDC );
       
         magma_zgemm(transA, transB, M, N, K,
                     _cast_Z(alpha), d_A, LDDA,
@@ -278,7 +263,7 @@ public:
                     _cast_Z(beta),  d_C, LDDC);
       
         // Copy solution from device (GPU) to host (CPU)
-        magma_zgetmatrix( M, N, d_C, LDDC, _cast_Zptr(C.base_array), LDC );
+        magma_zgetmatrix( Cm, Cn, d_C, LDDC, _cast_Zptr(C), ldc );
       
         // Free memory on GPU
         magma_free(d_A);

@@ -41,13 +41,13 @@ public:
                       const std::complex<double> *B, int_t ldb,
                       std::complex<double> beta, std::complex<double> *C, int_t ldc) = 0;
 
-    /* Diagonalize Hermitian Matrix */
+    /* Diagonalize Hermitian Matrix * /
     virtual void eigen(char jobz, char uplo, int_t N, std::complex<double> *A, 
-                       int_t lda, double *W, std::complex<double> *work, int_t lwork 
+                       int_t lda, double *W, std::complex<double> *work, int_t lwork,
                        double *rwork, info) = 0;    
     virtual void eigen(char jobz, char uplo, int_t N, std::complex<double> *A, 
-                       int_t lda, double *W, std::complex<double> *work, int_t lwork 
-                       double *rwork, int_t lrwork, int_t *iwork, int_t liwork, info) = 0;    
+                       int_t lda, double *W, std::complex<double> *work, int_t lwork,
+                       double *rwork, int_t lrwork, int_t *iwork, int_t liwork, info) = 0;
 
 
     virtual void getrf(int_t M, int_t N, double *A, int_t lda,
@@ -55,6 +55,7 @@ public:
     virtual void getrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
                        int_ptr_t ipiv, int_ptr_t info) = 0;
     // ... ALL OTHER FUNCTIONS
+    */
 };
 
 } //end namespace matrix_hao_lib
