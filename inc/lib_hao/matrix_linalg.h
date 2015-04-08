@@ -1,8 +1,11 @@
 #ifndef MATRIX_HAO_LINALG
 #define MATRIX_HAO_LINALG
 
-#define "lib_hao/matrix_2d.h"
-#define "lib_hao/blas_lapack_trait.h"
+/*#define "lib_hao/matrix_2d.h"
+  #define "lib_hao/blas_lapack_trait.h"*/
+
+#define "matrix_2d.h"
+#define "blas_lapack_trait.h"
 
 namespace matrix_hao_lib
 {
