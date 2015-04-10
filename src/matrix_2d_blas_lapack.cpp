@@ -659,14 +659,14 @@ Matrix<complex<double>,2> inverse(const LUDecomp<complex<double>>& x)
  Matrix<complex<double>,2> inverse_magma(const LUDecomp_magma<complex<double>>& x)
  {
      Matrix<complex<double>,2> A=x.A; //We know x.A own the matrix
-     magmaDoubleComplex *work, tmp;
+     //magmaDoubleComplex *work, tmp;
      magmaDoubleComplex_ptr d_A , dwork;
-     magma_int_t N=A.L1, lda, ldda, info, lwork= -1, ldwork;
+     magma_int_t N=A.L1, lda, ldda, info, ldwork;
      lda = N;
      ldda = ((lda+31)/32)*32;
      ldwork = N * magma_get_zgetri_nb(N); // magma_get_zgetri_nb optimizes the blocksize
 
-
+     //magma_int_t lwork=-1
      /* Calling lapackf77_zgetri requires magma_lapack.h which has a conflict with Hao's functions. 
         Query for a workspace size with magma_zgetri_gpu will give illegal info value (-6), although the final result is still correct for the current test case. */
      // query for workspace size
@@ -675,12 +675,12 @@ Matrix<complex<double>,2> inverse(const LUDecomp<complex<double>>& x)
      //magma_zgetri_gpu( N, NULL, lda, NULL, tmp, lwork, &info );
 
      // We can also use lapack zgetri function from MKL 
-     FORTRAN_NAME(zgetri)( &N, NULL, &lda, NULL, reinterpret_cast<BL_COMPLEX16*>( &tmp ), &lwork, &info );
+     //FORTRAN_NAME(zgetri)( &N, NULL, &lda, NULL, reinterpret_cast<BL_COMPLEX16*>( &tmp ), &lwork, &info );
      //cout << info << std::endl;
 
-     lwork = int( MAGMA_Z_REAL(tmp));
+     //lwork = int( MAGMA_Z_REAL(tmp));
      
-     magma_zmalloc_cpu( &work, lwork );
+     //magma_zmalloc_cpu( &work, lwork );
      magma_zmalloc( &d_A, ldda*N );
      magma_zmalloc( &dwork, ldwork );
 
@@ -696,7 +696,7 @@ Matrix<complex<double>,2> inverse(const LUDecomp<complex<double>>& x)
 
      magma_free( d_A );
      magma_free( dwork );
-     magma_free_cpu( work );
+     //magma_free_cpu( work );
 
      return A;
  }
