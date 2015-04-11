@@ -41,6 +41,13 @@ public:
                       const std::complex<double> *B, int_t ldb,
                       std::complex<double> beta, std::complex<double> *C, int_t ldc) = 0;
 
+
+    /* Diagonalize Hermitian Matrix */
+    virtual void heevd(char jobz, char uplo, int_t N, std::complex<double> *A, 
+                       int_t lda, double *W, std::complex<double> *work, int_t lwork,
+                       double *rwork, int_t lrwork, int_t *iwork, int_t liwork, int_t info) = 0;
+
+
     /* Diagonalize Hermitian Matrix * /
     virtual void eigen(char jobz, char uplo, int_t N, std::complex<double> *A, 
                        int_t lda, double *W, std::complex<double> *work, int_t lwork,

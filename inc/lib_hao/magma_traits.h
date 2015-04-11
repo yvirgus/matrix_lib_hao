@@ -5,8 +5,7 @@
 
 #include "magma.h"
 
-//#include "lib_hao/blas_lapack_traits.h"
-#include "blas_lapack_traits.h"
+#include "lib_hao/blas_lapack_traits.h"
 
 namespace matrix_hao_lib
 {
@@ -269,6 +268,35 @@ public:
         magma_free(d_A);
         magma_free(d_B);
         magma_free(d_C);
+    }
+
+    void heevd(char jobz, char uplo, int_t N, std::complex<double> *A,       
+               int_t lda, double *W, std::complex<double> *work, int_t lwork,
+               double *rwork, int_t lrwork, int_t *iwork, int_t liwork, int_t info) //virtual
+    {
+        magma_vec_t JOBZ = magma_vec_const(jobz);
+        magma_uplo_t UPLO = magma_uplo_const(uplo);
+        magmaDoubleComplex *h_work;
+
+        magma_zheevd( JOBZ, UPLO, N, NULL, lda, NULL,
+                      _cast_Zptr(work),  lwork, rwork, lrwork, iwork, liwork, &info );
+
+        lwork  = (magma_int_t) MAGMA_Z_REAL( _cast_Z(work[0]) );
+        lrwork = (magma_int_t) rwork[0];
+        liwork = iwork[0];
+
+        // allocate memory on CPU
+        magma_dmalloc_cpu(&rwork, lrwork);
+        magma_imalloc_cpu(&iwork, liwork);
+        magma_zmalloc_pinned(&h_work, lwork);
+
+        magma_zheevd( JOBZ, UPLO, N, _cast_Zptr(A), lda, W,
+                      h_work, lwork, rwork, lrwork, iwork, liwork, &info );
+
+        // free allocated memory
+        magma_free_cpu(rwork);
+        magma_free_cpu(iwork);
+        magma_free_pinned(h_work);
     }
 
     // FILL IN FOR S, C, Z types

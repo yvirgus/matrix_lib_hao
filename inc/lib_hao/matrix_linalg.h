@@ -26,9 +26,9 @@ public:
         : _impl(linalg_impl)
     {}
 
-    /*************************************/
-    /*Matrix Multiply C=alpha*A.B+beta*C */
-    /*************************************/
+    /**************************************/
+    /* Matrix Multiply C=alpha*A.B+beta*C */
+    /**************************************/
 
     // _T can be single, double, single complex, or double complex
     template <typename _T>
@@ -50,6 +50,26 @@ public:
                     B.base_array, LDB,
                     beta, C.base_array, LDC);
     }
+
+    /**************************************/
+    /*****Diagonalize Hermitian Matrix*****/
+    /**************************************/
+    //template <typename _T>
+    void eigen(Matrix<std::complex<double>,2>& A, Matrix<double,1>& W, char JOBZ='V', char UPLO='U')
+    {
+        
+        if(A.L1!=A.L2) throw std::invalid_argument("Input matrix is not a square matrix!");
+        int_t N=A.L1, LDA, lwork=-1, lrwork=-1, iwork[1], liwork=-1, info=-1;
+        std::complex<double> work[1];
+        double rwork[1];
+        LDA = N;
+
+        _impl->heevd(JOBZ, UPLO, N, A.base_array, 
+                     LDA, W.base_array, work, 
+                     lwork, rwork, lrwork, iwork,
+                     liwork, info);
+    }     
+
 };
 
 }//end namespace matrix_hao_lib

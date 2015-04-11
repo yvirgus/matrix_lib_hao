@@ -11,8 +11,7 @@
 #include "acml.h"
 #endif
 
-//#include "lib_hao/blas_lapack_traits.h"
-#include "blas_lapack_traits.h"
+#include "lib_hao/blas_lapack_traits.h"
 #include "matrix_define.h"
 
 
@@ -112,6 +111,33 @@ public:
                             _cast_Zptr(&alpha), _cast_Zptr(A), &lda,
                             _cast_Zptr(B), &ldb,
                             _cast_Zptr(&beta), _cast_Zptr(C), &ldc);
+    }
+
+    void heevd(char jobz, char uplo, int_t N, std::complex<double> *A,       
+               int_t lda, double *W, std::complex<double> *work, int_t lwork,
+               double *rwork, int_t lrwork, int_t *iwork, int_t liwork, int_t info) //virtual
+    {
+
+        FORTRAN_NAME(zheevd)(&jobz, &uplo, &N, _cast_Zptr(A), &lda, _cast_Dptr(W),
+                             _cast_Zptr(work), &lwork, _cast_Dptr(rwork), &lrwork,
+                             iwork, &liwork, &info);
+
+        lwork = lround(work[0].real());
+        work = new std::complex<double>[lwork];
+
+        lrwork = lround(rwork[0]);
+        rwork = new double[lrwork];
+       
+        liwork = *iwork;
+        iwork = new int[liwork];
+
+        FORTRAN_NAME(zheevd)(&jobz, &uplo, &N, _cast_Zptr(A), &lda, _cast_Dptr(W),
+                             _cast_Zptr(work), &lwork, _cast_Dptr(rwork), &lrwork,
+                             iwork, &liwork, &info);
+
+        delete[] work;
+        delete[] rwork;
+        delete[] iwork;
     }
 
     // Fill IN FOR S, C, Z types

@@ -202,9 +202,9 @@ namespace matrix_hao_lib
                                         {2.123,-3.11},{5.123,-3.11},{3,0.0}     } };
      Matrix<double,1> w(3);
      check_Hermitian(a);
-     cout << a << endl;
+     //cout << a << endl;
      eigen(a,w);
-     cout << a << endl;
+     //cout << a << endl;
      Matrix<complex<double>,2> a_exact={3,3,{ {-0.4053433965286621, -0.3217472918461721},
                                               {-0.3733963692733272,  0.6060804552476304},    
                                               {0.47478104875888194,  0},
@@ -275,8 +275,8 @@ namespace matrix_hao_lib
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11}, 
                                         {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
      LUDecomp<complex<double>> LU(A);
-     cout << LU.A << endl;
-     cout << LU.ipiv << endl;
+     //cout << LU.A << endl;
+     //cout << LU.ipiv << endl;
 
      Matrix<complex<double>,2> A_exact={3,3,{ {3,4} ,   {0.75236,0.03351999999999994}, {0.12,-0.16},
                                         {2,0},   {3.6182800000000004,3.04296},    {0.21807341113346007,-0.647707935025115},
@@ -327,7 +327,7 @@ namespace matrix_hao_lib
   // This results in 'incorrect' value for ipiv. Wirawan found this issue by converting the value in hex. 
   // In the mean time, we will remove the 64-bit flag from MKL and deactivate all Hao's FORTRAN_NAME functions which require MKL library. Now the environment is 32-bit.
 
-  void LUDecomp_magma_test_no_class()
+  /*  void LUDecomp_magma_test_no_class()
   {
     magmaDoubleComplex *A;
     magma_int_t *ipiv;
@@ -389,7 +389,7 @@ namespace matrix_hao_lib
     magma_free_cpu(ipiv);   
     magma_free_pinned(A);
     if(info<0) {cout<<"The "<<info<<"-th parameter is illegal!\n"; throw std::runtime_error(" ");} 
-  }
+    }*/
 
   /********************************************************************************************************************************************************/
 
@@ -657,7 +657,7 @@ namespace matrix_hao_lib
  {
      Matrix<complex<double>,2> A={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
                                         {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
-     cout<<A<<endl;
+     //cout<<A<<endl;
      double det=QRMatrix_magma(A);
      Matrix<complex<double>,2> A_exact={3,2,{ {-0.26392384387316437, 0} ,   
                                               {-0.3958857658097466 , 0.6598096096829109},    
@@ -675,37 +675,36 @@ namespace matrix_hao_lib
      if(flag==0) cout<<"QRMatrix_magma passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! QRMatrix_magma failed complex double test! \n";
      //cout<<setprecision(16);
-     cout<<A<<endl;
-     cout<<det<<endl;
+     //cout<<A<<endl;
+     //cout<<det<<endl;
  }
-
 
  void matrix_2d_blas_lapack_test()
  {
-     //gmm_float_test();
-     //gmm_magma_float_test();
-     //gmm_double_test();
-     //gmm_magma_double_test();
-     //gmm_complexfloat_test();
-     //gmm_magma_complexfloat_test();
-     //gmm_complexdouble_test();
-     //gmm_magma_complexdouble_test();
-     //eigen_test();
-     //eigen_magma_test();
-     //LUDecomp_test();
-     //LUDecomp_magma_test();
+     gmm_float_test();
+     gmm_magma_float_test();
+     gmm_double_test();
+     gmm_magma_double_test();
+     gmm_complexfloat_test();
+     gmm_magma_complexfloat_test();
+     gmm_complexdouble_test();
+     gmm_magma_complexdouble_test();
+     eigen_test();
+     eigen_magma_test();
+     LUDecomp_test();
+     LUDecomp_magma_test();
      //LUDecomp_magma_test_no_class();
-     //determinant_test();
-     //determinant_magma_test();
-     //log_determinant_test();
-     //log_determinant_magma_test();
-     //inverse_test();
-     //inverse_magma_test();
-     //solve_lineq_test();
-     //solve_lineq_magma_test();
-     //QRMatrix_test();
+     determinant_test();
+     determinant_magma_test();
+     log_determinant_test();
+     log_determinant_magma_test();
+     inverse_test();
+     inverse_magma_test();
+     solve_lineq_test();
+     solve_lineq_magma_test();
+     QRMatrix_test();
      QRMatrix_magma_test();
-     //D_Multi_Matrix_test();
+     D_Multi_Matrix_test();
  }
 
 } //end namespace matrix_hao_lib
