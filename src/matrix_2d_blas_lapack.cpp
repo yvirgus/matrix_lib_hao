@@ -793,20 +793,18 @@ double QRMatrix(Matrix<complex<double>,2>& ph)
  /******************************/
 double QRMatrix_magma(Matrix<complex<double>,2>& ph)
  {
-     magmaDoubleComplex *tau, *h_work, tmp[1];
+     magmaDoubleComplex *tau, *h_work; // tmp[1];
      magma_int_t L=ph.L1, N=ph.L2, lda, lwork=-1, nb, info;
 
      lda = L;
      nb = magma_get_zgeqrf_nb(L);
-     //cout << "nb: " << nb << std::endl;
-     
-     //cout << info << std::endl;
-     FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info );
-     //cout << info << std::endl;
-     lwork = (magma_int_t)MAGMA_Z_REAL( tmp[0] );
-     //cout << "lwork: " << lwork << std::endl;
+      
+     //FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info );
+
+     //lwork = (magma_int_t)MAGMA_Z_REAL( tmp[0] );
+
      lwork = std::max( lwork, std::max( N*nb, 2*nb*nb ));
-     //cout << "lwork: " << lwork << std::endl;
+
 
      // Allocate memory 
      magma_zmalloc_cpu(&tau, N);  // should be min(L,N) but N is always smaller 
