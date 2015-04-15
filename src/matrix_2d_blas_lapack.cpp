@@ -793,15 +793,15 @@ double QRMatrix(Matrix<complex<double>,2>& ph)
  /******************************/
 double QRMatrix_magma(Matrix<complex<double>,2>& ph)
  {
-     magmaDoubleComplex *tau, *h_work; // tmp[1];
+     magmaDoubleComplex *tau, *h_work, tmp[1];
      magma_int_t L=ph.L1, N=ph.L2, lda, lwork=-1, nb, info;
 
      lda = L;
      nb = magma_get_zgeqrf_nb(L);
       
-     //FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info );
+     FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info );
 
-     //lwork = (magma_int_t)MAGMA_Z_REAL( tmp[0] );
+     lwork = (magma_int_t)MAGMA_Z_REAL( tmp[0] );
 
      lwork = std::max( lwork, std::max( N*nb, 2*nb*nb ));
 
