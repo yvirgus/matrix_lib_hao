@@ -78,10 +78,6 @@ public:
                      LDA, W.base_array, &info);
     }     
 
-/**************************************/
-/************Inverse Matrix************/
-/**************************************/
-
 };
 
 /*******************************************/
@@ -201,6 +197,42 @@ void lognorm_phase_determinant_in(T &lognorm, T &phase)
      lognorm_phase_determinant_in(log_det,phase);
      log_det+=log(phase);
      return log_det;
+ }
+
+ /**************************************/
+ /************Inverse Matrix************/
+ /**************************************/
+ Matrix<T,2> inverse_in()
+ {
+     int_t N = A.L1, LDA;
+     LDA = N;
+
+     _impl->getri(N, A.base_array, LDA, ipiv.base_array, &info);
+
+     return A;
+ }
+
+ /******************************************************/
+ /*Solve Linear Equation of the matrix A*M=B: M=A^{-1}B*/
+ /******************************************************/
+ Matrix<T,2> solve_lineq_in(const Matrix<T,2> &B, char TRANS = 'N')
+ {
+     if(A.L1!=B.L1) throw std::invalid_argument("Input size for solving linear equation is not consistent!");
+     Matrix<T,2> M; M=B;
+     int_t N=B.L1, NRHS=B.L2, LDA, LDB;
+     LDA = N;
+     LDB = N;
+
+     _impl->getrs(TRANS, N, NRHS, A.base_array, LDA, ipiv.base_array, M.base_array, LDB, &info );
+
+     if(info!=0)
+         {   
+             cout<<"Solve linear equation is not suceesful: "<<info<<"-th parameter is illegal! \n";
+             throw std::runtime_error(" ");
+         }
+
+     return M;
+
  }
 
 };

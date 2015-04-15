@@ -61,6 +61,8 @@ public:
 
     // Dispatch functions: all of these define the are pure virtual
     // already declared in the base class
+
+    // Matrix multiplication
     void gemm(char trans_A, char trans_B, int_t M, int_t N, int_t K,
               float alpha, const float *A, int_t lda,
               const float *B, int_t ldb,
@@ -270,6 +272,7 @@ public:
         magma_free(d_C);
     }
 
+    // Eigen values and vectors
     void heevd(char jobz, char uplo, int_t N, std::complex<double> *A,       
                int_t lda, double *W, int_ptr_t info) //virtual
     {
@@ -304,13 +307,65 @@ public:
         magma_free_pinned(h_work);
     }
 
-    // FILL IN FOR S, C, Z types
+    // LU decomposition
     void getrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
                int_ptr_t ipiv, int_ptr_t info) // virtual
     {
         magma_zgetrf(M, N, _cast_Zptr(A), lda, ipiv, info);
     }
-    // ... ALL OTHER FUNCTIONS
+
+    // Inverse matrix 
+    void getri(int_t N, std::complex<double> *A, int_t lda,
+               int_ptr_t ipiv, int_ptr_t info)  //virtual 
+    {
+        magmaDoubleComplex_ptr d_A , dwork;
+        magma_int_t ldda, ldwork;
+        ldda = ((lda+31)/32)*32;
+        ldwork = N * magma_get_zgetri_nb(N); // magma_get_zgetri_nb optimizes the blocksize
+
+        magma_zmalloc( &d_A, ldda*N );
+        magma_zmalloc( &dwork, ldwork );
+
+        // copy matrix from CPU to GPU
+        magma_zsetmatrix( N, N, _cast_Zptr(A), lda, d_A, ldda );
+
+        // calculate the inverse matrix with zgetri
+        magma_zgetri_gpu( N, d_A, ldda, ipiv, dwork, ldwork, info );
+
+        // copy matrix from GPU to CPU
+        magma_zgetmatrix( N, N, d_A, ldda, _cast_Zptr(A), lda );
+
+        magma_free( d_A );
+        magma_free( dwork );
+    }
+
+    // Solve Linear Equation 
+    void getrs(char trans, int_t N, int_t NRHS, std::complex<double> *A, int_t lda,
+               int_ptr_t ipiv, std::complex<double> *B, int_t ldb, int_ptr_t info) //virtual
+    {
+        magma_trans_t Trans = magma_trans_const(trans);
+        magmaDoubleComplex_ptr d_A, d_B;
+        magma_int_t ldda, lddb;
+        ldda = ((lda+31)/32)*32;
+        lddb = ((ldb+31)/32)*32;
+
+        //allocate memory on GPU
+        magma_zmalloc( &d_A, ldda*N );
+        magma_zmalloc( &d_B, lddb*N );
+
+        // copy matrix from CPU to GPU
+        magma_zsetmatrix( N, N, _cast_Zptr(A), lda, d_A, ldda );
+        magma_zsetmatrix( N, N, _cast_Zptr(B), ldb, d_B, lddb );
+
+        magma_zgetrs_gpu( Trans, N, NRHS, d_A, ldda, ipiv, d_B, lddb, info );
+
+        // copy matrix from GPU to CPU
+        magma_zgetmatrix( N, N, d_B, lddb, _cast_Zptr(B), ldb );
+
+        // free memory
+        magma_free( d_A );
+        magma_free( d_B );
+    }
 };
 
 } //end namespace matrix_hao_lib

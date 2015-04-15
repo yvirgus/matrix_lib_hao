@@ -65,6 +65,8 @@ public:
 
     // Dispatch functions: all of these define the are pure virtual
     // already declared in the base class
+
+    // Matrix Multiplication
     void gemm(char trans_A, char trans_B, int_t M, int_t N, int_t K,
               float alpha, const float *A, int_t lda,
               const float *B, int_t ldb,
@@ -113,6 +115,7 @@ public:
                             _cast_Zptr(&beta), _cast_Zptr(C), &ldc);
     }
 
+    // Eigen values and eigen vectors 
     void heevd(char jobz, char uplo, int_t N, std::complex<double> *A,       
                int_t lda, double *W, int_ptr_t info) //virtual
     {
@@ -142,13 +145,41 @@ public:
         delete[] iwork;
     }
 
-    // Fill IN FOR S, C, Z types
+    // LU decomposition
     void getrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
                int_ptr_t ipiv, int_ptr_t info) // virtual
     {
         FORTRAN_NAME(zgetrf)(&M, &N, _cast_Zptr(A), &lda, ipiv, info);
     }
-    // ... ALL OTHER FUNCTIONS
+
+    // Inverse matrix 
+    void getri(int_t N, std::complex<double> *A, int_t lda,
+               int_ptr_t ipiv, int_ptr_t info)  //virtual 
+    {
+        int_t lwork = -1;
+        std::complex<double> aux_work[1];
+
+        FORTRAN_NAME(zgetri)(&N, _cast_Zptr(A), &lda, ipiv, 
+                             _cast_Zptr(aux_work), &lwork, info);
+
+        lwork = lround(aux_work[0].real());
+        std::complex<double> *work = new std::complex<double>[lwork];
+
+        FORTRAN_NAME(zgetri)(&N, _cast_Zptr(A), &lda, ipiv, 
+                             _cast_Zptr(work), &lwork, info);
+        
+        delete[] work;
+    }
+
+
+    // Solve Linear Equation 
+    void getrs(char trans, int_t N, int_t NRHS, std::complex<double> *A, int_t lda,
+               int_ptr_t ipiv, std::complex<double> *B, int_t ldb, int_ptr_t info) //virtual
+    {
+        FORTRAN_NAME(zgetrs)(&trans, &N, &NRHS, _cast_Zptr(A), &lda, 
+                             ipiv, _cast_Zptr(B), &ldb, info);
+    }
+
 };
 
 } //end namespace matrix_hao_lib

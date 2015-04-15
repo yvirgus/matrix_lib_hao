@@ -60,6 +60,16 @@ public:
 
     virtual void getrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
                        int_ptr_t ipiv, int_ptr_t info) = 0;
+
+    /* Inverse Matrix  */
+
+    virtual void getri(int_t N, std::complex<double> *A, int_t lda,
+                       int_ptr_t ipiv, int_ptr_t info) = 0;
+
+    /* Solve Linear Equation  */
+
+    virtual void getrs(char trans, int_t N, int_t NRHS, std::complex<double> *A, int_t lda,
+                       int_ptr_t ipiv, std::complex<double> *B, int_t ldb, int_ptr_t info) = 0;
    
 };
 

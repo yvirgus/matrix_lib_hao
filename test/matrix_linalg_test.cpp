@@ -308,7 +308,7 @@ void new_LU_decomp_magma_test()
      else cout<<"WARNING!!!!!!!!! New LU_decomp_magma failed complex double test! \n";
  }
     
- void determinant_new_test()
+ void new_determinant_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
@@ -329,7 +329,7 @@ void new_LU_decomp_magma_test()
      //cout<<det<<"\n";
  }
     
- void log_determinant_new_test()
+ void new_log_determinant_test()
  {
      Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
                                         {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
@@ -342,13 +342,76 @@ void new_LU_decomp_magma_test()
      complex<double> logdet=LU.log_determinant_in();
 
      complex<double> logdet_exact={716.3123168546207,0.027060209772387683};
-     if(abs(logdet-logdet_exact)<1e-12) cout<<"Log_determinant passed complex double test! \n";
-     else cout<<"WARNING!!!!!!!!! Log_determinant failed complex double test! \n";
+     if(abs(logdet-logdet_exact)<1e-12) cout<<"New Log_determinant passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New Log_determinant failed complex double test! \n";
      //cout<<abs(logdet-logdet_exact)<<"\n";
      //cout<<setprecision(16);
      //cout<<logdet<<"\n";
  }
+
+
+ void new_inverse_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     Matrix<complex<double>,2> A_exact={3,3,{ {-0.31516333912326305,0.13336022037456957} , 
+                                              {0.16746685439563874,-0.0779491606298965}, 
+                                              {-0.005504176768078849,0.1918486231848867},
+                                              {0.1412286826747599,-0.11408929794801193},   
+                                              {-0.1402834127458906,0.038283792754219295},    
+                                              {0.061029436341995695,0.01438130659499342},
+                                              {-0.01293596267860185,-0.1487405620815458},
+                                              {0.17584867623524927,-0.010672609392757534},
+                                              {-0.12306156095719788,-0.04540218264765162} } };
+     //f77lapack_traits<BL_INT> xlapack;
+     //LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
+
+     magma_traits<magma_int_t> xlapack;
+     LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
+
+     A=LU.inverse_in();
+
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+     if(flag==0) cout<<"New Inverse passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New Inverse failed complex double test! \n";
+ }
     
+ void new_solve_lineq_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     Matrix<complex<double>,2> B={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
+                                        {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
+     Matrix<complex<double>,2> X_exact={3,2,{ {0.785989996146147, 0.12584834096778363} ,   
+                                              {0.3050317378766687,-0.22890518276854455},    
+                                              {-0.1429470443202702,0.20747587687923086},
+                                              {0.6345942167676883, 1.253141477086266},   
+                                              {0.825768240961444,-0.8208234397212029},   
+                                              {0.6299516251873555,0.037643960766659545},} };
+
+     //magma_traits<magma_int_t> xlapack;
+     //LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
+
+     f77lapack_traits<BL_INT> xlapack;
+     LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
+
+     Matrix<complex<double>,2> X=LU.solve_lineq_in(B);
+
+     size_t flag=0;
+     for(size_t i=0; i<X_exact.L1; i++)
+     {
+         for(size_t j=0; j<X_exact.L2; j++) {if(abs(X(i,j)-X_exact(i,j))>1e-13) flag++;}
+     }
+     if(flag==0) cout<<"New Solve_lineq passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New Solve_lineq failed complex double test! \n";
+
+ } 
 
  void matrix_linalg_test()
  {
@@ -360,8 +423,10 @@ void new_LU_decomp_magma_test()
      new_eigen_magma_test();
      new_LU_decomp_test();
      new_LU_decomp_magma_test();
-     determinant_new_test();
-     log_determinant_new_test();
+     new_determinant_test();
+     new_log_determinant_test();
+     new_inverse_test();
+     new_solve_lineq_test();
  }
 
 } //end namespace matrix_hao_lib
