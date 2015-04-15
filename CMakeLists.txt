@@ -5,11 +5,24 @@ project(matrixhao)
 #For find module path
 set(CMAKE_MODULE_PATH "${MODULE_EXTRA_PATH}" ${CMAKE_MODULE_PATH})
 
+message( hello )
+message( "${MODULE_EXTRA_PATH}")
+message( hi )
+ 
 #For definitions
 add_definitions(${COMPILER_EXTRA_DEF})
 
+message( hello )
+message( "${COMPILER_EXTRA_DEF}")
+message( hi )
+
 #For c++ flag
 set(CMAKE_CXX_FLAGS "${COMPILER_EXTRA_FLAG}" ${CMAKE_CXX_FLAGS})
+
+message( hello )
+message( "${COMPILER_EXTRA_FLAG}")
+message( "${CMAKE_CXX_FLAGS}")
+message( hi )
 
 #For magma and Cuda
 #set(lapackblas_libraries "-L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lm -lgfortran")
