@@ -203,6 +203,153 @@ namespace matrix_hao_lib
 
     }
 
+void new_LU_decomp_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11}, 
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11}, 
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+
+     f77lapack_traits<BL_INT> xlapack;                         
+     LU_decomp<complex<double>,BL_INT> LU(A, &xlapack);               
+
+     //cout << LU.A << endl;
+     //cout << LU.ipiv << endl;
+
+     Matrix<complex<double>,2> A_exact={3,3,{ {3,4} ,   {0.75236,0.03351999999999994}, {0.12,-0.16},
+                                        {2,0},   {3.6182800000000004,3.04296},    {0.21807341113346007,-0.647707935025115},
+                                        {5.123,-6.11},{-1.05914748,4.42519664},{-0.14942307391746978,-5.208155953378981} } };
+
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LU.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LU_decomp<complex<double>,BL_INT> LUC(LU);
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LU_decomp<complex<double>,BL_INT> LUR(std::move(LU));
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUR.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LU_decomp<complex<double>,BL_INT> LUEC; LUEC=LUC;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUEC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+
+     LU_decomp<complex<double>,BL_INT> LUER; LUER=std::move(LUR);
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUER.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+
+     if(flag==0) cout<<"New LU_decomp passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New LU_decomp failed complex double test! \n";
+ }
+
+
+void new_LU_decomp_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11}, 
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11}, 
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+
+     magma_traits<magma_int_t> xlapack;                         
+     LU_decomp<complex<double>,magma_int_t> LU(A, &xlapack);               
+
+     //cout << LU.A << endl;
+     //cout << LU.ipiv << endl;
+
+     Matrix<complex<double>,2> A_exact={3,3,{ {3,4} ,   {0.75236,0.03351999999999994}, {0.12,-0.16},
+                                        {2,0},   {3.6182800000000004,3.04296},    {0.21807341113346007,-0.647707935025115},
+                                        {5.123,-6.11},{-1.05914748,4.42519664},{-0.14942307391746978,-5.208155953378981} } };
+
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LU.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LU_decomp<complex<double>,magma_int_t> LUC(LU);
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LU_decomp<complex<double>,magma_int_t> LUR(std::move(LU));
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUR.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+     LU_decomp<complex<double>,magma_int_t> LUEC; LUEC=LUC;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUEC.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+
+     LU_decomp<complex<double>,magma_int_t> LUER; LUER=std::move(LUR);
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(LUER.A(i,j)-A_exact(i,j))>1e-13) flag++;}
+     }
+
+
+     if(flag==0) cout<<"New LU_decomp_magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New LU_decomp_magma failed complex double test! \n";
+ }
+    
+ void determinant_new_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     // Need to be fixed to make it general
+     //magma_traits<magma_int_t> xlapack;
+     //LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
+
+     f77lapack_traits<BL_INT> xlapack;
+     LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
+
+     complex<double> det = LU.determinant_in();
+
+     complex<double> det_exact={123.11968700000003,3.3324580000000115};
+     if(abs(det-det_exact)<1e-13) cout<<"New Determinant passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New Determinant failed complex double test! \n";
+     //cout<<setprecision(16);
+     //cout<<det<<"\n";
+ }
+    
+ void log_determinant_new_test()
+ {
+     Matrix<complex<double>,2> A={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
+                                        {3.0,-2.0},   {2.0,0.0},    {5.123,3.11},
+                                        {2.123,-5.11},{5.123,-6.11},{3,0.0} } };
+     A*=1.e103;
+
+     f77lapack_traits<BL_INT> xlapack;
+     LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
+
+     complex<double> logdet=LU.log_determinant_in();
+
+     complex<double> logdet_exact={716.3123168546207,0.027060209772387683};
+     if(abs(logdet-logdet_exact)<1e-12) cout<<"Log_determinant passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! Log_determinant failed complex double test! \n";
+     //cout<<abs(logdet-logdet_exact)<<"\n";
+     //cout<<setprecision(16);
+     //cout<<logdet<<"\n";
+ }
+    
+
  void matrix_linalg_test()
  {
      new_dgemm_f77_double_test();
@@ -211,6 +358,10 @@ namespace matrix_hao_lib
      new_dgemm_magma_complexDouble_test();
      new_eigen_test();
      new_eigen_magma_test();
+     new_LU_decomp_test();
+     new_LU_decomp_magma_test();
+     determinant_new_test();
+     log_determinant_new_test();
  }
 
 } //end namespace matrix_hao_lib

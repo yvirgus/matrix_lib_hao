@@ -681,7 +681,7 @@ namespace matrix_hao_lib
 
  void matrix_2d_blas_lapack_test()
  {
-     gmm_float_test();
+     /*     gmm_float_test();
      gmm_magma_float_test();
      gmm_double_test();
      gmm_magma_double_test();
@@ -705,6 +705,7 @@ namespace matrix_hao_lib
      QRMatrix_test();
      QRMatrix_magma_test();
      D_Multi_Matrix_test();
+     */
  }
 
 } //end namespace matrix_hao_lib

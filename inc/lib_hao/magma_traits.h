@@ -271,19 +271,24 @@ public:
     }
 
     void heevd(char jobz, char uplo, int_t N, std::complex<double> *A,       
-               int_t lda, double *W, std::complex<double> *work, int_t lwork,
-               double *rwork, int_t lrwork, int_t *iwork, int_t liwork, int_t info) //virtual
+               int_t lda, double *W, int_ptr_t info) //virtual
     {
         magma_vec_t JOBZ = magma_vec_const(jobz);
         magma_uplo_t UPLO = magma_uplo_const(uplo);
-        magmaDoubleComplex *h_work;
+        magmaDoubleComplex *h_work, aux_work[1];
+        int_t lwork=-1, lrwork=-1, *iwork, aux_iwork[1], liwork=-1;
+        double *rwork, aux_rwork[1];
+
+        //magma_zheevd( JOBZ, UPLO, N, NULL, lda, NULL,
+        //              _cast_Zptr(work),  lwork, rwork, lrwork, iwork, liwork, info );
+
 
         magma_zheevd( JOBZ, UPLO, N, NULL, lda, NULL,
-                      _cast_Zptr(work),  lwork, rwork, lrwork, iwork, liwork, &info );
-
-        lwork  = (magma_int_t) MAGMA_Z_REAL( _cast_Z(work[0]) );
-        lrwork = (magma_int_t) rwork[0];
-        liwork = iwork[0];
+                      aux_work,  lwork, aux_rwork, lrwork, aux_iwork, liwork, info );
+ 
+        lwork  = (magma_int_t) MAGMA_Z_REAL( aux_work[0] );
+        lrwork = (magma_int_t) aux_rwork[0];
+        liwork = aux_iwork[0];
 
         // allocate memory on CPU
         magma_dmalloc_cpu(&rwork, lrwork);
@@ -291,7 +296,7 @@ public:
         magma_zmalloc_pinned(&h_work, lwork);
 
         magma_zheevd( JOBZ, UPLO, N, _cast_Zptr(A), lda, W,
-                      h_work, lwork, rwork, lrwork, iwork, liwork, &info );
+                      h_work, lwork, rwork, lrwork, iwork, liwork, info );
 
         // free allocated memory
         magma_free_cpu(rwork);
@@ -300,17 +305,10 @@ public:
     }
 
     // FILL IN FOR S, C, Z types
-    void getrf(int_t M, int_t N, double *A, int_t lda,
-               int_ptr_t ipiv, int_ptr_t info) // virtual
-    {
-        FORTRAN_NAME(dgetrf)(&M, &N,
-                             _cast_Dptr(A), &lda,
-                             ipiv, info);
-    }
     void getrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
                int_ptr_t ipiv, int_ptr_t info) // virtual
     {
-        // FILL THIS IN
+        magma_zgetrf(M, N, _cast_Zptr(A), lda, ipiv, info);
     }
     // ... ALL OTHER FUNCTIONS
 };

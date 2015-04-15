@@ -114,26 +114,28 @@ public:
     }
 
     void heevd(char jobz, char uplo, int_t N, std::complex<double> *A,       
-               int_t lda, double *W, std::complex<double> *work, int_t lwork,
-               double *rwork, int_t lrwork, int_t *iwork, int_t liwork, int_t info) //virtual
+               int_t lda, double *W, int_ptr_t info) //virtual
     {
+        int_t lwork=-1, lrwork=-1, aux_iwork[1], liwork=-1;
+        std::complex<double> aux_work[1];
+        double aux_rwork[1];
 
         FORTRAN_NAME(zheevd)(&jobz, &uplo, &N, _cast_Zptr(A), &lda, _cast_Dptr(W),
-                             _cast_Zptr(work), &lwork, _cast_Dptr(rwork), &lrwork,
-                             iwork, &liwork, &info);
+                             _cast_Zptr(aux_work), &lwork, aux_rwork, &lrwork,
+                             aux_iwork, &liwork, info);
 
-        lwork = lround(work[0].real());
-        work = new std::complex<double>[lwork];
+        lwork = lround(aux_work[0].real());
+        std::complex<double> *work = new std::complex<double>[lwork];
 
-        lrwork = lround(rwork[0]);
-        rwork = new double[lrwork];
-       
-        liwork = *iwork;
-        iwork = new int[liwork];
+        lrwork = lround(aux_rwork[0]);
+        double *rwork = new double[lrwork];
+
+        liwork = *aux_iwork;
+        int_t *iwork = new int_t[liwork];
 
         FORTRAN_NAME(zheevd)(&jobz, &uplo, &N, _cast_Zptr(A), &lda, _cast_Dptr(W),
-                             _cast_Zptr(work), &lwork, _cast_Dptr(rwork), &lrwork,
-                             iwork, &liwork, &info);
+                             _cast_Zptr(work), &lwork, rwork, &lrwork,
+                             iwork, &liwork, info);
 
         delete[] work;
         delete[] rwork;
@@ -141,17 +143,10 @@ public:
     }
 
     // Fill IN FOR S, C, Z types
-    void getrf(int_t M, int_t N, double *A, int_t lda,
-               int_ptr_t ipiv, int_ptr_t info) // virtual
-    {
-        FORTRAN_NAME(dgetrf)(&M, &N,
-                             _cast_Dptr(A), &lda,
-                             ipiv, info);
-    }
     void getrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
                int_ptr_t ipiv, int_ptr_t info) // virtual
     {
-        // FILL THIS IN
+        FORTRAN_NAME(zgetrf)(&M, &N, _cast_Zptr(A), &lda, ipiv, info);
     }
     // ... ALL OTHER FUNCTIONS
 };

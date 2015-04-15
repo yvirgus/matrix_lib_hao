@@ -43,26 +43,24 @@ public:
 
 
     /* Diagonalize Hermitian Matrix */
-    virtual void heevd(char jobz, char uplo, int_t N, std::complex<double> *A, 
+/*    virtual void heevd(char jobz, char uplo, int_t N, std::complex<double> *A, 
                        int_t lda, double *W, std::complex<double> *work, int_t lwork,
-                       double *rwork, int_t lrwork, int_t *iwork, int_t liwork, int_t info) = 0;
+                       double *rwork, int_t lrwork, int_t *iwork, int_t liwork, int__ptr_t info) = 0;*/
 
+   virtual void heevd(char jobz, char uplo, int_t N, std::complex<double> *A, 
+                       int_t lda, double *W, int_ptr_t info) = 0;
 
-    /* Diagonalize Hermitian Matrix * /
-    virtual void eigen(char jobz, char uplo, int_t N, std::complex<double> *A, 
+    /*  Diagonalize Hermitian Matrix
+       virtual void heev(char jobz, char uplo, int_t N, std::complex<double> *A, 
                        int_t lda, double *W, std::complex<double> *work, int_t lwork,
-                       double *rwork, info) = 0;    
-    virtual void eigen(char jobz, char uplo, int_t N, std::complex<double> *A, 
-                       int_t lda, double *W, std::complex<double> *work, int_t lwork,
-                       double *rwork, int_t lrwork, int_t *iwork, int_t liwork, info) = 0;
+                       double *rwork, int_ptr_t info) = 0;    
+    */
 
+    /* LU decomposition  */
 
-    virtual void getrf(int_t M, int_t N, double *A, int_t lda,
-                       int_ptr_t ipiv, int_ptr_t info) = 0;
     virtual void getrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
                        int_ptr_t ipiv, int_ptr_t info) = 0;
-    // ... ALL OTHER FUNCTIONS
-    */
+   
 };
 
 } //end namespace matrix_hao_lib
