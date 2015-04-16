@@ -180,6 +180,43 @@ public:
                              ipiv, _cast_Zptr(B), &ldb, info);
     }
 
+
+    // QR decomposition
+    void geqrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
+               std::complex<double> *tau, int_ptr_t info) // virtual
+    {
+        int_t lwork = -1;
+        std::complex<double> aux_work[1];      
+
+        FORTRAN_NAME(zgeqrf)(&M, &N, _cast_Zptr(A), &lda, _cast_Zptr(tau),
+                             _cast_Zptr(aux_work), &lwork, info);
+
+        lwork = lround(aux_work[0].real());                                                      
+        std::complex<double> *work = new std::complex<double>[lwork];            
+
+        FORTRAN_NAME(zgeqrf)(&M, &N, _cast_Zptr(A), &lda, _cast_Zptr(tau),
+                             _cast_Zptr(work), &lwork, info);        
+
+        delete[] work;
+    }
+
+    void ungqr(int_t M, int_t N, int_t K, std::complex<double> *A,
+               int_t lda, std::complex<double> *tau, int_ptr_t info) //virtual
+    {
+        int_t lwork = -1;                                                           
+        std::complex<double> aux_work[1];                                         
+                                                                                  
+        FORTRAN_NAME(zungqr)(&M, &N, &K, _cast_Zptr(A), &lda, _cast_Zptr(tau),         
+                             _cast_Zptr(aux_work), &lwork, info);                 
+
+        lwork = lround(aux_work[0].real());                          
+        std::complex<double> *work = new std::complex<double>[lwork];
+
+        FORTRAN_NAME(zungqr)(&M, &N, &K, _cast_Zptr(A), &lda, _cast_Zptr(tau),         
+                             _cast_Zptr(work), &lwork, info);                 
+        delete[] work;
+    }
+
 };
 
 } //end namespace matrix_hao_lib

@@ -703,7 +703,7 @@ namespace matrix_hao_lib
      inverse_magma_test();
      solve_lineq_test();
      solve_lineq_magma_test();
-     QRMatrix_test(); 
+     QRMatrix_test();
      QRMatrix_magma_test();
      D_Multi_Matrix_test();
      */

@@ -366,6 +366,31 @@ public:
         magma_free( d_A );
         magma_free( d_B );
     }
+
+    // QR decomposition
+    void geqrf(int_t M, int_t N, std::complex<double> *A, int_t lda,
+               std::complex<double> *tau, int_ptr_t info) // virtual
+    {
+        magmaDoubleComplex *h_work;
+        magma_int_t lwork=-1, nb;
+
+        nb = magma_get_zgeqrf_nb(M);
+        lwork = std::max( N*nb, 2*nb*nb );
+
+        magma_zmalloc_cpu(&h_work, lwork);
+
+        // perform zgeqrf
+        magma_zgeqrf(M, N, _cast_Zptr(A), lda, _cast_Zptr(tau), h_work, lwork, info);
+
+        magma_free_cpu( h_work );
+    }
+
+    void ungqr(int_t M, int_t N, int_t K, std::complex<double> *A,
+               int_t lda, std::complex<double> *tau, int_ptr_t info) //virtual
+    {
+        magma_zungqr2( M, N, K, _cast_Zptr(A), lda, _cast_Zptr(tau), info );
+    }
+
 };
 
 } //end namespace matrix_hao_lib

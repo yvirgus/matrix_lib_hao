@@ -413,6 +413,66 @@ void new_LU_decomp_magma_test()
 
  } 
 
+ void new_QRMatrix_test()
+ {
+     Matrix<complex<double>,2> A={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
+                                        {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
+
+     typedef f77lapack_traits<BL_INT> xlapack_t;        
+     xlapack_t xlapack;                                 
+     linalg<BL_INT> LA(&xlapack);
+     double det=LA.QRMatrix(A);
+     Matrix<complex<double>,2> A_exact={3,2,{ {-0.26392384387316437, 0} ,   
+                                              {-0.3958857658097466 , 0.6598096096829109},    
+                                              {-0.41211708220794624, 0.41040157722277065},
+                                              {0.20568020122880237 , 0.7338652779407804},   
+                                              {-0.41851770493832796, 0.22064009932009565},    
+                                              {0.3071492824057953  ,-0.3177382636670606},} };
+     double det_exact=51.76794728400964;
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(abs(A(i,j))-abs(A_exact(i,j)))>1e-12) flag++;}
+     }
+     if(abs(det-det_exact)>1e-12) flag++;
+     if(flag==0) cout<<"New QRMatrix passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New QRMatrix failed complex double test! \n";
+     //cout<<setprecision(16);
+     //cout<<A<<endl;
+     //cout<<det<<endl;
+ }
+
+
+ void new_QRMatrix_magma_test()
+ {
+     Matrix<complex<double>,2> A={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
+                                        {3.0,-6.0},   {2.0,1.0},    {6.123,3.11},} };
+
+     typedef magma_traits<magma_int_t> xlapack_t;        
+     xlapack_t xlapack;                                 
+     linalg<magma_int_t> LA(&xlapack);
+     double det=LA.QRMatrix(A);
+     Matrix<complex<double>,2> A_exact={3,2,{ {-0.26392384387316437, 0} ,   
+                                              {-0.3958857658097466 , 0.6598096096829109},    
+                                              {-0.41211708220794624, 0.41040157722277065},
+                                              {0.20568020122880237 , 0.7338652779407804},   
+                                              {-0.41851770493832796, 0.22064009932009565},    
+                                              {0.3071492824057953  ,-0.3177382636670606},} };
+     double det_exact=51.76794728400964;
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(abs(A(i,j))-abs(A_exact(i,j)))>1e-12) flag++;}
+     }
+     if(abs(det-det_exact)>1e-12) flag++;
+     if(flag==0) cout<<"New QRMatrix magma passed complex double test! \n";
+     else cout<<"WARNING!!!!!!!!! New QRMatrix magma failed complex double test! \n";
+     //cout<<setprecision(16);
+     //cout<<A<<endl;
+     //cout<<det<<endl;
+ }
+
+
  void matrix_linalg_test()
  {
      new_dgemm_f77_double_test();
@@ -427,6 +487,9 @@ void new_LU_decomp_magma_test()
      new_log_determinant_test();
      new_inverse_test();
      new_solve_lineq_test();
+     new_QRMatrix_test();
+     new_QRMatrix_magma_test();
+    
  }
 
 } //end namespace matrix_hao_lib

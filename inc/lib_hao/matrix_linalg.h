@@ -78,6 +78,30 @@ public:
                      LDA, W.base_array, &info);
     }     
 
+/******************************/
+/*QR decompostion of matrix ph*/
+/******************************/
+    double QRMatrix(Matrix<std::complex<double>, 2>& ph)
+    {
+        int_t L = ph.L1, N = ph.L2, LDA, info;
+        LDA = L;
+        std::complex<double>* tau = new std::complex<double>[N];
+
+        _impl->geqrf(L, N, ph.base_array, LDA, tau, &info);
+
+        if(info!=0) {cout<<"QR run is not suceesful: "<<info<<"-th parameter is illegal! \n"; throw std::runtime_error(" ");}
+
+        std::complex<double> det={1.0,0.0}; for (size_t i=0; i<ph.L2; i++)  det*=ph(i,i);
+
+        _impl->ungqr(L, N, N, ph.base_array, LDA, tau, &info);
+
+        if(det.real()<0) {det=-det; for(size_t i=0; i<ph.L1; i++) ph(i,0)=-ph(i,0);}
+        
+       delete[] tau;
+
+       return det.real();
+    }
+
 };
 
 /*******************************************/

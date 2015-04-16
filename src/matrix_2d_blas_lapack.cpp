@@ -793,18 +793,22 @@ double QRMatrix(Matrix<complex<double>,2>& ph)
  /******************************/
 double QRMatrix_magma(Matrix<complex<double>,2>& ph)
  {
-     magmaDoubleComplex *tau, *h_work, tmp[1];
+     magmaDoubleComplex *tau, *h_work;
+     //magmaDoubleComplex tmp[1];
      magma_int_t L=ph.L1, N=ph.L2, lda, lwork=-1, nb, info;
 
      lda = L;
      nb = magma_get_zgeqrf_nb(L);
-      
-     FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info );
+     //cout << "nb value and L value : " << nb << " and " << L << std::endl;
+     
 
-     lwork = (magma_int_t)MAGMA_Z_REAL( tmp[0] );
+     //FORTRAN_NAME(zgeqrf) ( &L, &N, NULL, &L, NULL, reinterpret_cast<BL_COMPLEX16*>(tmp), &lwork, &info );
+     //lwork = (magma_int_t)MAGMA_Z_REAL( tmp[0] );
+     //cout << "lwork value : " << lwork << std::endl;
 
+     // The value of lwork calculated by max( N*nb, 2*nb*nb ) should be larger than method above (query space with zgeqrf). If there is an error, try to activate zgeqrf.
      lwork = std::max( lwork, std::max( N*nb, 2*nb*nb ));
-
+     // cout << "lwork value : " << lwork << std::endl;
 
      // Allocate memory 
      magma_zmalloc_cpu(&tau, N);  // should be min(L,N) but N is always smaller 
@@ -818,6 +822,9 @@ double QRMatrix_magma(Matrix<complex<double>,2>& ph)
      complex<double> det={1.0,0.0}; for (size_t i=0; i<ph.L2; i++)  det*=ph(i,i); 
      
      magma_zungqr( L, N, N, _cast_Zptr_magma(ph.base_array), lda, tau, h_work, lwork, &info );
+
+     // This method gives the same result except that it recomputes T matrices
+     //magma_zungqr2( L, N, N, _cast_Zptr_magma(ph.base_array), lda, tau, &info );
 
      if(det.real()<0) {det=-det; for(size_t i=0; i<ph.L1; i++) ph(i,0)=-ph(i,0);}
 
