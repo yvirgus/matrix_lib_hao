@@ -366,12 +366,12 @@ void new_LU_decomp_magma_test()
                                               {-0.12306156095719788,-0.04540218264765162} } };
      //f77lapack_traits<BL_INT> xlapack;
      //LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
-
+     //cout << A << endl;
      magma_traits<magma_int_t> xlapack;
      LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
 
      A=LU.inverse_in();
-
+     //cout << A << endl;
      size_t flag=0;
      for(size_t i=0; i<A_exact.L1; i++)
      {
@@ -475,6 +475,7 @@ void new_LU_decomp_magma_test()
 
  void matrix_linalg_test()
  {
+     /*
      new_dgemm_f77_double_test();
      new_dgemm_magma_double_test();
      new_dgemm_f77_complexDouble_test();
@@ -489,7 +490,7 @@ void new_LU_decomp_magma_test()
      new_solve_lineq_test();
      new_QRMatrix_test();
      new_QRMatrix_magma_test();
-    
+     */
  }
 
 } //end namespace matrix_hao_lib

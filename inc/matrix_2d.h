@@ -1,3 +1,5 @@
+#include "matrix_base.h"
+
 #ifndef MATRIX_HAO_2D
 #define MATRIX_HAO_2D
 
