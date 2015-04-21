@@ -99,10 +99,14 @@ namespace matrix_hao_lib
      f77lapack_traits<BL_INT> xlapack_f77;
      linalg<BL_INT> LA_f77(&xlapack_f77);
 
+     cout << "starting computation..." << endl;
+     cout.flush();
+
      cpu_time = magma_wtime();
      LA_f77.gmm(a, b, c, 'N', 'N');
      cpu_time = magma_wtime() - cpu_time;
      cout << "cpu time: " << cpu_time << endl;
+     cout.flush();
 
      magma_traits<magma_int_t> xlapack;
      linalg<magma_int_t> LA(&xlapack);
@@ -114,12 +118,14 @@ namespace matrix_hao_lib
      cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
      cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
      cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     cout.flush();
 
      // SECOND TEST
      cpu_time = magma_wtime();
      LA_f77.gmm(a, b, c, 'N', 'N');
      cpu_time = magma_wtime() - cpu_time;
      cout << "cpu time: " << cpu_time << endl;
+     cout.flush();
 
      gpu_time = magma_wtime();
      LA.gmm(a, b, c, 'N', 'N');
@@ -128,6 +134,7 @@ namespace matrix_hao_lib
      cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
      cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
      cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     cout.flush();
      // END SECOND TEST
 
      size_t flag=0;
