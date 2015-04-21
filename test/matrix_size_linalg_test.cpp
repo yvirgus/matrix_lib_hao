@@ -87,27 +87,48 @@ namespace matrix_hao_lib
     }
 
 
+    BL_INT lapack_ran_ISEED[4] = { 0, 127, 0, 127 };
+
+    void fill_random(Matrix<double,2> &A)
+    {
+        BL_INT itwo = 2;
+        BL_INT size_A = A.L1 * A.L2;
+        FORTRAN_NAME(dlarnv)(&itwo, lapack_ran_ISEED, &size_A, A.base_array);
+    }
+
+
  void size_dgemm_magma_double_test()
  {
      //cout << "new_dgemm_magma_test" << endl;
      real_Double_t cpu_time, gpu_time;
+     bool has_exact;
 #if 0
      Matrix<double,2> a=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-567392-A_Matrix-double-1000x20000.txt");
      Matrix<double,2> b=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-567392-B_Matrix-double-20000x1000.txt");
      Matrix<double,2> c(1000,1000);
      Matrix<double,2> c_exact=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-567392-C_Matrix-double-1000x1000.txt");
+     has_exact = true;
 #endif
-#if 1
+#if 0
      Matrix<double,2> a=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-215900-A_Matrix-double-3136x3136.txt");
      Matrix<double,2> b=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-215900-B_Matrix-double-3136x3136.txt");
      Matrix<double,2> c(3136, 3136);
      Matrix<double,2> c_exact=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-215900-C_Matrix-double-3136x3136.txt");
+     has_exact = true;
+#endif
+#if 1
+     Matrix<double,2> a(3136, 3136); fill_random(a);
+     Matrix<double,2> b(3136, 3136); fill_random(b);
+     Matrix<double,2> c(3136, 3136);
+     Matrix<double,2> c_exact(3136, 3136);
+     has_exact = false;
 #endif
 #if 0
      Matrix<double,2> a=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-379403-A_Matrix-double-5184x5184.txt");
      Matrix<double,2> b=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-379403-B_Matrix-double-5184x5184.txt");
      Matrix<double,2> c(5184, 5184);
      Matrix<double,2> c_exact=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-379403-C_Matrix-double-5184x5184.txt");
+     has_exact = true;
 #endif
 
      f77lapack_traits<BL_INT> xlapack_f77;
@@ -121,6 +142,7 @@ namespace matrix_hao_lib
      cpu_time = magma_wtime() - cpu_time;
      cout << "cpu time: " << cpu_time << endl;
      cout.flush();
+     if (!has_exact) c_exact = c;
 
      magma_traits<magma_int_t> xlapack;
      linalg<magma_int_t> LA(&xlapack);
