@@ -91,10 +91,24 @@ namespace matrix_hao_lib
  {
      //cout << "new_dgemm_magma_test" << endl;
      real_Double_t cpu_time, gpu_time;
+#if 0
      Matrix<double,2> a=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-567392-A_Matrix-double-1000x20000.txt");
      Matrix<double,2> b=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-567392-B_Matrix-double-20000x1000.txt");
      Matrix<double,2> c(1000,1000);
      Matrix<double,2> c_exact=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-567392-C_Matrix-double-1000x1000.txt");
+#endif
+#if 1
+     Matrix<double,2> a=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-215900-A_Matrix-double-3136x3136.txt");
+     Matrix<double,2> b=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-215900-B_Matrix-double-3136x3136.txt");
+     Matrix<double,2> c(3136, 3136);
+     Matrix<double,2> c_exact=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-215900-C_Matrix-double-3136x3136.txt");
+#endif
+#if 0
+     Matrix<double,2> a=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-379403-A_Matrix-double-5184x5184.txt");
+     Matrix<double,2> b=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-379403-B_Matrix-double-5184x5184.txt");
+     Matrix<double,2> c(5184, 5184);
+     Matrix<double,2> c_exact=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-379403-C_Matrix-double-5184x5184.txt");
+#endif
 
      f77lapack_traits<BL_INT> xlapack_f77;
      linalg<BL_INT> LA_f77(&xlapack_f77);
