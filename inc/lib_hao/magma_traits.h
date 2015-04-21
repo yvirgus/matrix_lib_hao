@@ -15,6 +15,7 @@ class magma_traits: public blas_lapack_traits<_Int_t>
 //  This is the wrapper to the REAL implementation of MAGMA
 {
 public:
+    real_Double_t tm_transfer_in, tm_transfer_out, tm_blas, tm_lapack;
     typedef typename blas_lapack_traits<_Int_t>::int_t int_t;
     typedef typename blas_lapack_traits<_Int_t>::int_ptr_t int_ptr_t;
 
@@ -121,6 +122,7 @@ public:
         magma_int_t Am, An, Bm, Bn, Cm, Cn;
         magma_trans_t transA = magma_trans_const(trans_A), transB = magma_trans_const(trans_B);
         magmaDouble_ptr d_A, d_B, d_C;
+        real_Double_t t1, t2, t3;
 
         // Note: Am = number of physical rows of A matrix
         // Note: An = number of physical columns of A matrix
@@ -151,6 +153,7 @@ public:
         LDDC = ((Cm+31)/32)*32;
 
         // Allocate memory for the matrices on GPU
+        t1 = magma_sync_wtime(NULL);
         magma_dmalloc(&d_A, LDDA*An);
         magma_dmalloc(&d_B, LDDB*Bn);
         magma_dmalloc(&d_C, LDDC*Cn);
@@ -160,14 +163,20 @@ public:
         magma_dsetmatrix(Bm, Bn, B, ldb, d_B, LDDB);
         // FIXME: If beta == 0, no need to do dsetmatrix-->just zero out "*d_C"
         magma_dsetmatrix(Cm, Cn, C, ldc, d_C, LDDC);
+        t2 = magma_sync_wtime(NULL);
+        tm_transfer_in = t2 - t1;
 
         magma_dgemm(transA, transB, M, N, K,
                     alpha, d_A, LDDA,
                     d_B, LDDB,
                     beta,  d_C, LDDC);
 
+        t3 = magma_sync_wtime(NULL);
+        tm_blas = t3 - t2;
         // Copy solution from device (GPU) to host (CPU)
         magma_dgetmatrix(Cm, Cn, d_C, LDDC, C, ldc);
+
+        tm_transfer_out = magma_sync_wtime(NULL) - t3;
 
         // Free memory on GPU
         magma_free(d_A);

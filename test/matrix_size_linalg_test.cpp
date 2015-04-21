@@ -111,7 +111,24 @@ namespace matrix_hao_lib
      LA.gmm(a, b, c, 'N', 'N');
      gpu_time = magma_wtime() - gpu_time;
      cout << "gpu time: " << gpu_time << endl;
+     cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
 
+     // SECOND TEST
+     cpu_time = magma_wtime();
+     LA_f77.gmm(a, b, c, 'N', 'N');
+     cpu_time = magma_wtime() - cpu_time;
+     cout << "cpu time: " << cpu_time << endl;
+
+     gpu_time = magma_wtime();
+     LA.gmm(a, b, c, 'N', 'N');
+     gpu_time = magma_wtime() - gpu_time;
+     cout << "gpu time: " << gpu_time << endl;
+     cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     // END SECOND TEST
 
      size_t flag=0;
      for(size_t i=0; i<c.L1; i++)
