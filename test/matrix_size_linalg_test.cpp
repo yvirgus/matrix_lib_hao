@@ -97,7 +97,7 @@ namespace matrix_hao_lib
     }
 
 
- void size_dgemm_magma_double_test()
+void size_dgemm_magma_double_test()
  {
      //cout << "new_dgemm_magma_test" << endl;
      real_Double_t cpu_time, gpu_time;
