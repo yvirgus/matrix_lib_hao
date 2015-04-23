@@ -116,11 +116,18 @@ void size_dgemm_magma_double_test()
      Matrix<double,2> c_exact=read_matrix<double>("/particle/disk2/yvirgus/python-scratch/matrix-mul/mul-215900-C_Matrix-double-3136x3136.txt");
      has_exact = true;
 #endif
-#if 1
+#if 0
      Matrix<double,2> a(3136, 3136); fill_random(a);
      Matrix<double,2> b(3136, 3136); fill_random(b);
      Matrix<double,2> c(3136, 3136);
      Matrix<double,2> c_exact(3136, 3136);
+     has_exact = false;
+#endif
+#if 1
+     Matrix<double,2> a(10304, 10304); fill_random(a);
+     Matrix<double,2> b(10304, 10304); fill_random(b);
+     Matrix<double,2> c(10304, 10304);
+     Matrix<double,2> c_exact(10304, 10304);
      has_exact = false;
 #endif
 #if 0
