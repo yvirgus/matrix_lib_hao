@@ -242,6 +242,7 @@ public:
         magma_int_t Am, An, Bm, Bn, Cm, Cn;
         magma_trans_t transA = magma_trans_const(trans_A), transB = magma_trans_const(trans_B);
         magmaDoubleComplex_ptr d_A, d_B, d_C;
+        real_Double_t t1, t2, t3;
 
         // Note: Am = number of physical rows of A matrix
         // Note: An = number of physical columns of A matrix
@@ -257,6 +258,7 @@ public:
         LDDC = ((Cm+31)/32)*32;
 
         // Allocate memory for the matrices on GPU     
+        t1 = magma_sync_wtime(NULL);
         magma_zmalloc(&d_A, LDDA*An );
         magma_zmalloc(&d_B, LDDB*Bn );
         magma_zmalloc(&d_C, LDDC*Cn );
@@ -266,16 +268,22 @@ public:
         magma_zsetmatrix( Am, An, _cast_Zptr(A), lda, d_A, LDDA );
         magma_zsetmatrix( Bm, Bn, _cast_Zptr(B), ldb, d_B, LDDB );
         magma_zsetmatrix( Cm, Cn, _cast_Zptr(C), ldc, d_C, LDDC );
+        t2 = magma_sync_wtime(NULL);
+        tm_transfer_in = t2 - t1;
       
         magma_zgemm(transA, transB, M, N, K,
                     _cast_Z(alpha), d_A, LDDA,
                     d_B, LDDB,
                     _cast_Z(beta),  d_C, LDDC);
+
+        t3 = magma_sync_wtime(NULL);
+        tm_blas = t3 - t2;
       
         // Copy solution from device (GPU) to host (CPU)
         magma_zgetmatrix( Cm, Cn, d_C, LDDC, _cast_Zptr(C), ldc );
-      
-        // Free memory on GPU
+	tm_transfer_out = magma_sync_wtime(NULL) - t3; 
+        
+	// Free memory on GPU
         magma_free(d_A);
         magma_free(d_B);
         magma_free(d_C);
