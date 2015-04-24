@@ -5,7 +5,7 @@ add_executable(matrixtest ${matrix_test_srcs})
 target_link_libraries(matrixtest matrixhao)
 
 #target_link_libraries(matrixtest -L/usr/local/magma-1.6.1/lib -lmagma)
-target_link_libraries(matrixtest -L/usr/local/magma-1.6.1/lib -lmagma)
+target_link_libraries(matrixtest -L/sciclone/home00/yvirgus/build/magma-1.6.1/lib -lmagma)
 
 #target_link_libraries(matrixtest -L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lcublas -lcudart -lm -lgfortran)
 #target_link_libraries(matrixtest -L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lcublas -lcudart -lm)

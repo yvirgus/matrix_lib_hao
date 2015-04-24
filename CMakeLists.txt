@@ -26,14 +26,15 @@ message( hi )
 
 #For magma and Cuda
 #set(lapackblas_libraries "-L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lm -lgfortran")
-set(cuda_lapackblas_libraries "-L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lm")
+#set(cuda_lapackblas_libraries "-L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lm")
+set(cuda_lapackblas_libraries "-L/usr/local/cuda-5.5/lib64 -lcublas -lcudart")
 
 #set(gfortran_library "-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/ -lgfortran")
 #include_directories("/usr/lib/gcc/x86_64-redhat-linux/4.4.7/include")
 
-include_directories("/usr/local/magma-1.6.1/include")
-include_directories("/usr/local/magma-1.6.1/lib")
-include_directories("/usr/local/cuda-7.0/include")
+include_directories("/sciclone/home00/yvirgus/build/magma-1.6.1/include")
+include_directories("/sciclone/home00/yvirgus/build/magma-1.6.1/lib")
+include_directories("/usr/local/cuda-5.5/include")
 
 #target_link_libraries(matrixhao -L/usr/local/magma-1.6.1/lib -lmagma)
 #target_link_libraries(matrixhao -L/usr/local/cuda-7.0/lib64 -L/usr/lib64/atlas-sse3 -L/usr/lib64/atlas-sse3/lib -llapack -lf77blas -lcblas -latlas -lcublas -lcudart -lm -lgfortran)

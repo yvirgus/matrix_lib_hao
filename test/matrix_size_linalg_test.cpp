@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <fstream>
 #include <cassert>
+#include <vector>
 
 #include "lib_hao/matrix_linalg.h"
 #include "lib_hao/f77lapack_traits.h"
@@ -95,7 +96,7 @@ namespace matrix_hao_lib
         BL_INT size_A = A.L1 * A.L2;
         FORTRAN_NAME(dlarnv)(&itwo, lapack_ran_ISEED, &size_A, A.base_array);
     }
-
+ 
 
 void size_dgemm_magma_double_test()
  {
@@ -191,6 +192,90 @@ void size_dgemm_magma_double_test()
          cout << "WARNING!!!!!!!!! New gmm_magma failed double test! " << flag << " values mismatched" << endl;
  }
 
+struct gemm_sizes {
+    int M, N, K;
+};
+
+void dgemm_double_matrix_size_test(int M, int N, int K)
+ {
+     real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
+     bool has_exact;
+     
+     //gflops = FLOPS_DGEMM( M, N, K ) / 1e9;
+     gflops = 2.0*M*N*K / 1e9;
+
+     Matrix<double,2> a(M, K); fill_random(a);
+     Matrix<double,2> b(K, N); fill_random(b);
+     Matrix<double,2> c(M, N);
+     Matrix<double,2> c_exact(M, N);
+     has_exact = false;
+
+
+     f77lapack_traits<BL_INT> xlapack_f77;
+     linalg<BL_INT> LA_f77(&xlapack_f77);
+
+     //cout << "starting computation..." << endl;
+     cout.flush();
+
+     //------ Performing dgemm with lapack 
+     cpu_time = magma_wtime();
+     LA_f77.gmm(a, b, c, 'N', 'N');
+     cpu_time = magma_wtime() - cpu_time;
+     cpu_perf = gflops / cpu_time;
+     //cout << "cpu time: " << cpu_time << endl;
+     //cout.flush();
+     if (!has_exact) c_exact = c;
+
+     magma_traits<magma_int_t> xlapack;
+     linalg<magma_int_t> LA(&xlapack);
+
+     //------ Performing dgemm with magma
+  
+     LA.gmm(a, b, c, 'N', 'N');
+     magma_time = xlapack.tm_blas;
+     magma_perf = gflops / magma_time;
+     //cout << "gpu time: " << gpu_time << endl;
+     //cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     //cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     //cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     //cout.flush();
+
+     //cout << "    M     N     K    MAGMA Gflop/s (ms)  in (ms)  out (ms)     CPU Gflop/s (ms) " << endl;
+     //cout << "=======================================================================================\n";
+     cout << "  " << M << "  " << N << "  " << K << "   " << magma_perf << " (" << magma_time*1000 << ")    " << xlapack.tm_transfer_in*1000 << "   " <<  xlapack.tm_transfer_out*1000 << "   " << cpu_perf << " (" << cpu_time*1000 << ")   ";
+
+     /*
+     // SECOND TEST
+     cpu_time = magma_wtime();
+     LA_f77.gmm(a, b, c, 'N', 'N');
+     cpu_time = magma_wtime() - cpu_time;
+     cout << "cpu time: " << cpu_time << endl;
+     cout.flush();
+
+     gpu_time = magma_wtime();
+     LA.gmm(a, b, c, 'N', 'N');
+     gpu_time = magma_wtime() - gpu_time;
+     cout << "gpu time: " << gpu_time << endl;
+     cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     cout.flush();
+     // END SECOND TEST
+     */
+
+     size_t flag=0;
+     for(size_t i=0; i<c.L1; i++)
+     {
+         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-5) flag++;}
+     }
+     if (flag==0) 
+       //cout<<"New gmm_magma passed double test! \n";
+       cout << "ok" << endl;
+     else
+       //cout << "WARNING!!!!!!!!! New gmm_magma failed double test! " << flag << " values mismatched" << endl;
+       cout << "failed" << endl; 
+  }
+
  void size_inverse_test()
  {
      real_Double_t cpu_time, gpu_time;
@@ -240,8 +325,26 @@ void size_dgemm_magma_double_test()
 
  void matrix_size_linalg_test()
  {
-     size_dgemm_magma_double_test();
+   int M, N, K;
+
+   vector<int> sizes;
+
+   for (int i = 1088; i <= 10304; i += 1024){
+     sizes.push_back(i);
+   }
+   cout << "    M     N     K    MAGMA Gflop/s (ms)  in (ms)  out (ms)     CPU Gflop/s (ms)   result" << endl;
+   cout << "=======================================================================================\n";
+
+   for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
+     M = *it;
+     N = *it;
+     K = *it;
+     dgemm_double_matrix_size_test(M, N, K);
+   }
+
+   //size_dgemm_magma_double_test();
      //size_inverse_test();
+
  }
 
 } //end namespace matrix_hao_lib
