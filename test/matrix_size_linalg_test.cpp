@@ -384,7 +384,7 @@ void dgemm_double_complex_matrix_size_test()
     //mtx_sizes  = {1, 3, 7};
     //cout << A.M << A.N << A.K << endl;
     
-    vector<int> sizes;
+    //vector<int> sizes;
     vector<gemm_sizes> mtx_sizes;
 
 
@@ -407,6 +407,88 @@ void dgemm_double_complex_matrix_size_test()
       dgemm_double_complex_matrix(it->M, it->N, it->K);
     }
   }
+
+
+    void eigen_double_complex(int M=1000)
+    {
+      
+      real_Double_t cpu_time, magma_time;
+      bool has_exact;
+
+      Matrix<complex<double>,2> a(M, M); fill_random(a);
+      Matrix<complex<double>,2> I(M, M);
+      
+      for (int i = 0; i < M; i++) {
+	for (int j = 0; j < M; j++) {
+	  if (i==j){
+	    I(i,j) = {1.000000000000000, 0.000000000000000};
+	  }
+	  else{
+	    I(i,j) = {0.000000000000000, 0.000000000000000};
+	  }
+	}
+      }
+
+      Matrix<complex<double>,2> c(M, M), a_exact(M,M);
+      
+      Matrix<double,1> w(M), w_lapack(M), w_exact(M);
+      has_exact = false;
+
+      f77lapack_traits<BL_INT> xlapack_f77;
+      linalg<BL_INT> LA_f77(&xlapack_f77);
+
+      LA_f77.gmm(a, I, c, 'C', 'N');
+
+      a = a + c;
+
+      Matrix<complex<double>,2> a_lapack = a;
+      check_Hermitian(a);
+
+      cout << "M = " << M << endl;
+      cout.flush();
+
+      //------ Performing eigen with lapack 
+      cpu_time = magma_wtime();
+      LA_f77.eigen(a_lapack, w_lapack, 'V', 'U');     
+      cpu_time = magma_wtime() - cpu_time;
+      cout << "CPU time (sec) " << cpu_time << endl;
+      cout.flush();
+
+      if (!has_exact)
+	{
+	  a_exact = a_lapack;
+	  w_exact = w_lapack;
+	}
+
+      magma_traits<magma_int_t> xlapack;
+      linalg<magma_int_t> LA(&xlapack);
+
+
+      //------ Performing eigen with magma
+      magma_time = magma_wtime();                     
+      LA.eigen(a, w, 'V', 'U');   
+      magma_time = magma_wtime() - magma_time;          
+      cout << "GPU time (sec) " << magma_time << endl;
+      cout.flush();
+
+      size_t flag=0;
+      for(size_t i=0; i<a.L1; i++)
+	{
+	  for(size_t j=0; j<a.L2; j++) {if(abs(abs(a(i,j))-abs(a_exact(i,j)))>1e-13) flag++;}
+	}
+
+      for(size_t i=0; i<w.L1; i++) {if(abs(w(i)-w_exact(i))>1e-13) flag++;}
+      
+      cout << "flag = " << flag << endl;
+      if(flag==0) cout<<"New Eigen passed Hermition test! \n";
+      else cout<<"WARNING!!!!!!!!! New Eigen failed Hermintion test! \n";
+     //cout<<setprecision(16);
+     //cout<<w<<endl;
+     //cout<<a<<endl;
+
+    }
+
+
 
  void size_inverse_test()
  {
@@ -459,8 +541,9 @@ void dgemm_double_complex_matrix_size_test()
  {
    //size_dgemm_magma_double_test();
      //size_inverse_test();
-   dgemm_double_matrix_size_test();
-   dgemm_double_complex_matrix_size_test();
+   //dgemm_double_matrix_size_test();
+   //dgemm_double_complex_matrix_size_test();
+   eigen_double_complex();
  }
 
 } //end namespace matrix_hao_lib
