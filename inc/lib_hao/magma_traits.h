@@ -15,7 +15,8 @@ class magma_traits: public blas_lapack_traits<_Int_t>
 //  This is the wrapper to the REAL implementation of MAGMA
 {
 public:
-    real_Double_t tm_transfer_in, tm_transfer_out, tm_blas, tm_lapack;
+    real_Double_t tm_transfer_in, tm_transfer_out, tm_blas;
+    real_Double_t tm_query;
     typedef typename blas_lapack_traits<_Int_t>::int_t int_t;
     typedef typename blas_lapack_traits<_Int_t>::int_ptr_t int_ptr_t;
 
@@ -298,14 +299,17 @@ public:
         magmaDoubleComplex *h_work, aux_work[1];
         int_t lwork=-1, lrwork=-1, *iwork, aux_iwork[1], liwork=-1;
         double *rwork, aux_rwork[1];
+	real_Double_t t1, t2;
 
         //magma_zheevd( JOBZ, UPLO, N, NULL, lda, NULL,
         //              _cast_Zptr(work),  lwork, rwork, lrwork, iwork, liwork, info );
 
-
+	t1 = magma_sync_wtime(NULL);
         magma_zheevd( JOBZ, UPLO, N, NULL, lda, NULL,
                       aux_work,  lwork, aux_rwork, lrwork, aux_iwork, liwork, info );
- 
+	
+	tm_query = magma_sync_wtime(NULL) - t1;
+
         lwork  = (magma_int_t) MAGMA_Z_REAL( aux_work[0] );
         lrwork = (magma_int_t) aux_rwork[0];
         liwork = aux_iwork[0];
@@ -315,8 +319,11 @@ public:
         magma_imalloc_cpu(&iwork, liwork);
         magma_zmalloc_pinned(&h_work, lwork);
 
+	t2 = magma_sync_wtime(NULL);
         magma_zheevd( JOBZ, UPLO, N, _cast_Zptr(A), lda, W,
                       h_work, lwork, rwork, lrwork, iwork, liwork, info );
+	
+	tm_blas = magma_sync_wtime(NULL) - t2;
 
         // free allocated memory
         magma_free_cpu(rwork);
@@ -337,6 +344,7 @@ public:
     {
         magmaDoubleComplex_ptr d_A , dwork;
         magma_int_t ldda, ldwork;
+	real_Double_t t1, t2, t3;
         ldda = ((lda+31)/32)*32;
         ldwork = N * magma_get_zgetri_nb(N); // magma_get_zgetri_nb optimizes the blocksize
 
@@ -344,13 +352,19 @@ public:
         magma_zmalloc( &dwork, ldwork );
 
         // copy matrix from CPU to GPU
+	t1 = magma_sync_wtime(NULL);
         magma_zsetmatrix( N, N, _cast_Zptr(A), lda, d_A, ldda );
+	tm_transfer_in = magma_sync_wtime(NULL) - t1;
 
         // calculate the inverse matrix with zgetri
+	t2 = magma_sync_wtime(NULL);
         magma_zgetri_gpu( N, d_A, ldda, ipiv, dwork, ldwork, info );
+	tm_blas = magma_sync_wtime(NULL) - t2;
 
         // copy matrix from GPU to CPU
+	t3 = magma_sync_wtime(NULL);
         magma_zgetmatrix( N, N, d_A, ldda, _cast_Zptr(A), lda );
+	tm_transfer_out = magma_sync_wtime(NULL) - t3;
 
         magma_free( d_A );
         magma_free( dwork );
