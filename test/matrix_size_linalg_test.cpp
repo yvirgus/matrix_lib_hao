@@ -7,6 +7,7 @@
 #include "lib_hao/matrix_linalg.h"
 #include "lib_hao/f77lapack_traits.h"
 #include "lib_hao/magma_traits.h"
+#include "lib_hao/flops.h"
 
 using namespace std;
 
@@ -207,8 +208,8 @@ void dgemm_double_matrix(int M, int N, int K)
      real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
      bool has_exact;
      
-     //gflops = FLOPS_DGEMM( M, N, K ) / 1e9;
-     gflops = 2.0*M*N*K / 1e9;
+     gflops = FLOPS_DGEMM( M, N, K ) / 1e9;
+     //gflops = 2.0*M*N*K / 1e9;
 
      Matrix<double,2> a(M, K); fill_random(a);
      Matrix<double,2> b(K, N); fill_random(b);
@@ -316,10 +317,9 @@ void dgemm_double_matrix_size_test()
 void dgemm_double_complex_matrix(int M, int N, int K)
  {
      real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
-     bool has_exact;
-     
-     //gflops = FLOPS_DGEMM( M, N, K ) / 1e9;
-     gflops = 2.0*M*N*K / 1e9;
+     bool has_exact;     
+
+     gflops = FLOPS_ZGEMM( M, N, K ) / 1e9;
 
      Matrix<complex<double>,2> a(M, K); fill_random(a);
      Matrix<complex<double>,2> b(K, N); fill_random(b);
@@ -409,7 +409,7 @@ void dgemm_double_complex_matrix_size_test()
   }
 
 
-    void eigen_double_complex(int M=1000)
+    void eigen_double_complex(int M=1088)
     {
       
       real_Double_t cpu_time, magma_time;
@@ -444,15 +444,16 @@ void dgemm_double_complex_matrix_size_test()
       Matrix<complex<double>,2> a_lapack = a;
       check_Hermitian(a);
 
-      cout << "M = " << M << endl;
-      cout.flush();
+      //cout << "M = " << M << endl;
+      //cout.flush();
 
       //------ Performing eigen with lapack 
       cpu_time = magma_wtime();
-      LA_f77.eigen(a_lapack, w_lapack, 'V', 'U');     
+      LA_f77.eigen(a_lapack, w_lapack, 'V', 'L');     
+      //eigen(a_lapack, w_lapack, 'V', 'L');
       cpu_time = magma_wtime() - cpu_time;
-      cout << "CPU time (sec) " << cpu_time << endl;
-      cout.flush();
+      //  cout << "CPU time (sec) " << cpu_time << endl;
+      // cout.flush();
 
       if (!has_exact)
 	{
@@ -463,13 +464,15 @@ void dgemm_double_complex_matrix_size_test()
       magma_traits<magma_int_t> xlapack;
       linalg<magma_int_t> LA(&xlapack);
 
-
+      //cout << "M = " << M << endl;
+      //cout.flush();
       //------ Performing eigen with magma
       magma_time = magma_wtime();                     
-      LA.eigen(a, w, 'V', 'U');   
+      LA.eigen(a, w, 'V', 'L');   
+      //eigen_magma(a,w, 'V', 'L');
       magma_time = magma_wtime() - magma_time;          
-      cout << "GPU time (sec) " << magma_time << endl;
-      cout.flush();
+      //      cout << "GPU time (sec) " << magma_time << endl;
+      //     cout.flush();
 
       size_t flag=0;
       for(size_t i=0; i<a.L1; i++)
@@ -478,15 +481,185 @@ void dgemm_double_complex_matrix_size_test()
 	}
 
       for(size_t i=0; i<w.L1; i++) {if(abs(w(i)-w_exact(i))>1e-13) flag++;}
+
+      printf("%5d     %7.3f       %7.3f       %7.3f       %7.3f        %s \n",  M, magma_time, xlapack.tm_query, xlapack.tm_blas,  cpu_time, (flag == 0 ? "ok" : "failed"));
       
-      cout << "flag = " << flag << endl;
-      if(flag==0) cout<<"New Eigen passed Hermition test! \n";
-      else cout<<"WARNING!!!!!!!!! New Eigen failed Hermintion test! \n";
+      //      cout << "flag = " << flag << endl;
+      //      if(flag==0) cout<<"New Eigen passed Hermition test! \n";
+      //      else cout<<"WARNING!!!!!!!!! New Eigen failed Hermintion test! \n";
      //cout<<setprecision(16);
      //cout<<w<<endl;
      //cout<<a<<endl;
-
     }
+
+void eigen_double_complex_size_test()
+  {
+    int M;
+    vector<int> sizes;
+
+    for (int i = 10; i <= 5010; i += 100){
+      sizes.push_back(i);
+    }
+
+    //    for (int i = 1088; i <= 4160; i += 1024){
+    //      sizes.push_back(i);
+    //    }
+
+    cout << "    M    GPU time (s) query time (s) zheevd time (s) CPU time (s)  result" << endl;
+    cout << "===========================================================================\n";
+
+    //    for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
+    for (auto it = sizes.begin() ; it != sizes.end(); ++it){
+      M = *it;
+      eigen_double_complex(M);
+    }
+
+  }
+
+
+  void LU_decompose(int M)
+  {
+      real_Double_t gflops, cpu_time, magma_time, cpu_perf, gpu_perf;
+      bool has_exact;
+
+      gflops = FLOPS_ZGETRF( M, M ) / 1e9;
+
+      Matrix<complex<double>,2> A(M, M); fill_random(A);
+      Matrix<complex<double>,2> A_lapack = A;
+      has_exact = false;
+      Matrix<complex<double>,2> A_exact(M, M);
+
+      cpu_time = magma_wtime();
+      f77lapack_traits<BL_INT> xlapack_f77;                         
+      LU_decomp<complex<double>,BL_INT> LU_lapack(A_lapack, &xlapack_f77);
+      cpu_time = magma_wtime() - cpu_time;
+      cpu_perf = gflops / cpu_time;
+      //cout << "CPU time (sec) " << cpu_time << endl;
+      //cout.flush();
+
+      //cout << A_lapack << endl;
+      if (!has_exact)
+	{
+	  A_exact = LU_lapack.A;
+	}
+      //cout << A_exact << endl;
+
+      //cout << A << endl;
+      magma_time = magma_wtime();
+      magma_traits<magma_int_t> xlapack;                         
+      LU_decomp<complex<double>,magma_int_t> LU(A, &xlapack);               
+      magma_time = magma_wtime() - magma_time;
+      gpu_perf = gflops / magma_time;
+      //cout << "GPU time (sec) " << magma_time << endl;
+      //cout.flush();
+                                        
+      //cout << "LU.A = " << LU.A << endl;
+      size_t flag=0;
+      for(size_t i=0; i<A_exact.L1; i++)
+	{
+	  for(size_t j=0; j<A_exact.L2; j++) {if(abs(LU.A(i,j)-A_exact(i,j))>1e-10) flag++;}
+	}
+      printf("%5d  %7.2f (%7.2f)    %7.2f (%7.2f)    %s \n", (int) M, gpu_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
+      //cout << "flag : " << flag << endl;
+      //if(flag==0) cout<<"New LU_decomp passed complex double test! \n";
+      //else cout<<"WARNING!!!!!!!!! New LU_decomp failed complex double test! \n";
+ }
+
+  void LU_decomp_size_test()
+  {
+    int M;
+    vector<int> sizes;
+
+    for (int i = 32; i <= 1087; i += 164){
+      sizes.push_back(i);
+    }
+
+    for (int i = 1088; i <= 10304; i += 1024){
+      sizes.push_back(i);
+    }
+
+    cout << "    M     MAGMA Gflop/s (s)   CPU Gflop/s (s)  result" << endl;
+    cout << "========================================================\n";
+
+    //    for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
+    for (auto it = sizes.begin() ; it != sizes.end(); ++it){
+      M = *it;
+      LU_decompose(M);
+    }
+  }
+
+
+  void inverse_mtx(int M=3000)
+  {
+     real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
+     bool has_exact;     
+
+     gflops = FLOPS_ZGETRI( M ) / 1e9;
+
+     Matrix<complex<double>,2> A(M, M); fill_random(A);
+     Matrix<complex<double>,2> A_lapack = A;
+     Matrix<complex<double>,2> A_exact(M,M);
+     has_exact = false;
+     
+     f77lapack_traits<BL_INT> xlapack_f77;
+     LU_decomp<complex<double>,BL_INT>  LU_lapack( A_lapack, &xlapack_f77 );
+
+     cpu_time = magma_wtime();
+     A_lapack = LU_lapack.inverse_in();
+     cpu_time = magma_wtime() - cpu_time;
+     cpu_perf = gflops / cpu_time;
+     //cout << "CPU time : " << cpu_time << endl;
+     //cout.flush();
+
+     if (!has_exact){
+       A_exact = A_lapack;
+     }
+
+     magma_traits<magma_int_t> xlapack;
+     LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
+
+     magma_time = magma_wtime();
+     A=LU.inverse_in();
+     magma_time = magma_wtime() - magma_time;
+     magma_perf = gflops / xlapack.tm_blas;
+     //cout << "gpu time: " << magma_time << endl;
+     cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     //cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     //cout.flush();
+     
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(A(i,j)-A_exact(i,j))>1e-10) flag++;}
+     }
+      printf("%5d  %7.2f (%7.2f)    %7.2f (%7.2f)    %s \n", (int) M, magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
+      //if(flag==0) cout<<"New Inverse passed complex double test! \n";
+      //else cout<<"WARNING!!!!!!!!! New Inverse failed complex double test! \n";
+  }
+
+  void inverse_mtx_size_test()
+  {
+    int M;
+    vector<int> sizes;
+
+    for (int i = 32; i <= 1087; i += 164){
+      sizes.push_back(i);
+    }
+
+    for (int i = 1088; i <= 10304; i += 1024){
+      sizes.push_back(i);
+    }
+
+    cout << "   M    MAGMA Gflop/s (s)     CPU Gflop/s (s)  result" << endl;
+    cout << "========================================================\n";
+
+    //    for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
+    for (auto it = sizes.begin() ; it != sizes.end(); ++it){
+      M = *it;
+      inverse_mtx(M);
+    }
+  }
 
 
 
@@ -503,7 +676,7 @@ void dgemm_double_complex_matrix_size_test()
      LU_decomp<complex<double>,BL_INT>  LU_f77( A, &xlapack_f77 );
      cpu_time = magma_wtime() - cpu_time;
      cout << "cpu time: " << cpu_time << endl;
-
+     
      cpu_time = magma_wtime();
      A=LU_f77.inverse_in();
      cpu_time = magma_wtime() - cpu_time;
@@ -543,7 +716,9 @@ void dgemm_double_complex_matrix_size_test()
      //size_inverse_test();
    //dgemm_double_matrix_size_test();
    //dgemm_double_complex_matrix_size_test();
-   eigen_double_complex();
+   //eigen_double_complex_size_test();
+   //LU_decomp_size_test();
+   inverse_mtx_size_test();
  }
 
 } //end namespace matrix_hao_lib
