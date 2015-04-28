@@ -303,6 +303,7 @@ void dgemm_double_matrix_size_test()
       gemm_sizes A = {i,i,i};
       mtx_sizes.push_back(A);
     }
+    cout << "\nTesting dgemm (Matrix Multiplication) :\n";
     cout << "    M     N     K   MAGMA Gflop/s (ms)    in     out     CPU Gflop/s (ms)  result" << endl;
     cout << "                                         (ms)    (ms)" << endl;
     cout << "=================================================================================\n";
@@ -314,7 +315,7 @@ void dgemm_double_matrix_size_test()
     }
   }
 
-void dgemm_double_complex_matrix(int M, int N, int K)
+void zgemm_double_complex_matrix(int M, int N, int K)
  {
      real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
      bool has_exact;     
@@ -377,7 +378,7 @@ void dgemm_double_complex_matrix(int M, int N, int K)
      printf("%5d %5d %5d   %7.2f (%7.2f) %7.2f %7.2f  %7.2f (%7.2f)    %s \n",  M, N, K, magma_perf, magma_time*1000, xlapack.tm_transfer_in*1000, xlapack.tm_transfer_out*1000, cpu_perf, cpu_time*1000, (flag == 0 ? "ok" : "failed")); 
   }
 
-void dgemm_double_complex_matrix_size_test()
+void zgemm_double_complex_matrix_size_test()
   {
     //int M, N, K;
     //gemm_sizes mtx_sizes{10,5,8};
@@ -397,6 +398,7 @@ void dgemm_double_complex_matrix_size_test()
       gemm_sizes A = {i,i,i};
       mtx_sizes.push_back(A);
     }
+    cout << "\nTesting zgemm (Matrix Multiplication) :\n";
     cout << "    M     N     K   MAGMA Gflop/s (ms)    in     out     CPU Gflop/s (ms)  result" << endl;
     cout << "                                         (ms)    (ms)" << endl;
     cout << "=================================================================================\n";
@@ -404,7 +406,7 @@ void dgemm_double_complex_matrix_size_test()
     //    for (vector<int>::iterator it = mtx_sizes.begin() ; it != mtx_sizes.end(); ++it){
     for (auto it = mtx_sizes.begin() ; it != mtx_sizes.end(); ++it){
       //gemm_sizes &A = *it; 
-      dgemm_double_complex_matrix(it->M, it->N, it->K);
+      zgemm_double_complex_matrix(it->M, it->N, it->K);
     }
   }
 
@@ -497,14 +499,14 @@ void eigen_double_complex_size_test()
     int M;
     vector<int> sizes;
 
-    for (int i = 10; i <= 5010; i += 100){
+    for (int i = 10; i <= 1000; i += 200){
       sizes.push_back(i);
     }
 
-    //    for (int i = 1088; i <= 4160; i += 1024){
-    //      sizes.push_back(i);
-    //    }
-
+    for (int i = 1088; i <= 4160; i += 1024){
+        sizes.push_back(i);
+    }
+    cout << "\nTesting zheevd (Eigen) :\n";
     cout << "    M    GPU time (s) query time (s) zheevd time (s) CPU time (s)  result" << endl;
     cout << "===========================================================================\n";
 
@@ -574,10 +576,11 @@ void eigen_double_complex_size_test()
       sizes.push_back(i);
     }
 
-    for (int i = 1088; i <= 10304; i += 1024){
+    //for (int i = 1088; i <= 10304; i += 1024){
+    for (auto i = 1088; i <= 2500; i += 1024){
       sizes.push_back(i);
     }
-
+    cout << "\nTesting zgetrf (LU decomposition) :\n";
     cout << "    M     MAGMA Gflop/s (s)   CPU Gflop/s (s)  result" << endl;
     cout << "========================================================\n";
 
@@ -623,15 +626,15 @@ void eigen_double_complex_size_test()
      magma_time = magma_wtime() - magma_time;
      magma_perf = gflops / xlapack.tm_blas;
      //cout << "gpu time: " << magma_time << endl;
-     cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
-     cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     //cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     //cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
      //cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
      //cout.flush();
      
      size_t flag=0;
      for(size_t i=0; i<A_exact.L1; i++)
      {
-         for(size_t j=0; j<A_exact.L2; j++) {if(abs(A(i,j)-A_exact(i,j))>1e-10) flag++;}
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(A(i,j)-A_exact(i,j))>1e-12) flag++;}
      }
       printf("%5d  %7.2f (%7.2f)    %7.2f (%7.2f)    %s \n", (int) M, magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
       //if(flag==0) cout<<"New Inverse passed complex double test! \n";
@@ -647,10 +650,11 @@ void eigen_double_complex_size_test()
       sizes.push_back(i);
     }
 
-    for (int i = 1088; i <= 10304; i += 1024){
+    //for (int i = 1088; i <= 10304; i += 1024){
+    for (auto i = 1088; i <= 2500; i += 1024){
       sizes.push_back(i);
     }
-
+    cout << "\nTesting zgetri (Inverse Matrix) :\n";
     cout << "   M    MAGMA Gflop/s (s)     CPU Gflop/s (s)  result" << endl;
     cout << "========================================================\n";
 
@@ -662,6 +666,150 @@ void eigen_double_complex_size_test()
   }
 
 
+  void linear_eq(int M=3000)
+  {
+     real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
+     bool has_exact;     
+
+     gflops = FLOPS_ZGETRS( M, M ) / 1e9;
+
+     Matrix<complex<double>,2> A(M, M); fill_random(A);
+     Matrix<complex<double>,2> B(M, M); fill_random(B);
+     Matrix<complex<double>,2> A_lapack = A;
+     Matrix<complex<double>,2> B_lapack = B;
+     Matrix<complex<double>,2> X_exact(M,M);
+     has_exact = false;
+     
+     f77lapack_traits<BL_INT> xlapack_f77;
+     LU_decomp<complex<double>,BL_INT>  LU_lapack( A_lapack, &xlapack_f77 );
+
+     cpu_time = magma_wtime();
+     Matrix<complex<double>,2> X_lapack=LU_lapack.solve_lineq_in(B_lapack);
+     cpu_time = magma_wtime() - cpu_time;
+     cpu_perf = gflops / cpu_time;
+     //cout << "CPU time : " << cpu_time << endl;
+     //cout.flush();
+
+     if (!has_exact){
+       X_exact = X_lapack;
+     }
+
+     magma_traits<magma_int_t> xlapack;
+     LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
+
+     magma_time = magma_wtime();
+     Matrix<complex<double>,2> X=LU.solve_lineq_in(B);
+     magma_time = magma_wtime() - magma_time;
+     magma_perf = gflops / xlapack.tm_blas;
+     //cout << "gpu time: " << magma_time << endl;
+     //cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     //cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     //cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     //cout.flush();
+     
+     size_t flag=0;
+     for(size_t i=0; i<X_exact.L1; i++)
+       {
+	 for(size_t j=0; j<X_exact.L2; j++) {if(abs(X(i,j)-X_exact(i,j))>1e-10) flag++;}
+       }
+     //if(flag==0) cout<<"New Solve_lineq passed complex double test! \n";
+     //else cout<<"WARNING!!!!!!!!! New Solve_lineq failed complex double test! \n";
+
+     printf("%5d  %5d  %7.2f (%7.2f)    %7.2f (%7.2f)    %s \n", (int) M, M, magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
+
+  }
+
+  void linear_eq_size_test()
+  {
+    int M;
+    vector<int> sizes;
+
+    for (int i = 32; i <= 1087; i += 164){
+      sizes.push_back(i);
+    }
+
+    for (int i = 1088; i <= 10304; i += 1024){
+    //for (auto i = 1088; i <= 2500; i += 1024){
+      sizes.push_back(i);
+    }
+    cout << "\nTesting zgetrs (Solving Linear Equation) :\n";
+    cout << "   M   NRHS   MAGMA Gflop/s (s)     CPU Gflop/s (s)  result" << endl;
+    cout << "========================================================\n";
+
+    //    for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
+    for (auto it = sizes.begin() ; it != sizes.end(); ++it){
+      M = *it;
+      linear_eq(M);
+    }
+  }
+
+
+  void QR_decompose(int M)
+  {
+      real_Double_t cpu_time, magma_time;
+      bool has_exact;
+
+      Matrix<complex<double>,2> A(M, M); fill_random(A);
+      Matrix<complex<double>,2> A_lapack = A;
+      has_exact = false;
+      Matrix<complex<double>,2> A_exact(M, M);
+      double det_exact;
+
+      cpu_time = magma_wtime();
+      f77lapack_traits<BL_INT> xlapack_f77;                         
+      linalg<BL_INT> LA_lapack(&xlapack_f77);
+
+      double det_lapack=LA_lapack.QRMatrix(A_lapack);
+      cpu_time = magma_wtime() - cpu_time;
+
+      if (!has_exact){
+          A_exact = A_lapack;
+          det_exact = det_lapack;
+      }
+
+      magma_time = magma_wtime();
+      magma_traits<magma_int_t> xlapack;                         
+      linalg<magma_int_t> LA(&xlapack);
+      
+      double det = LA.QRMatrix(A);
+      magma_time = magma_wtime() - magma_time;
+
+     size_t flag=0;
+     for(size_t i=0; i<A_exact.L1; i++)
+     {
+         for(size_t j=0; j<A_exact.L2; j++) {if(abs(abs(A(i,j))-abs(A_exact(i,j)))>1e-12) flag++;}
+     }
+     if(abs(det-det_exact)>1e-12) flag++;
+     //if(flag==0) cout<<"New QRMatrix magma passed complex double test! \n";
+     //else cout<<"WARNING!!!!!!!!! New QRMatrix magma failed complex double test! \n";
+
+      printf("%5d %5d %5d  %7.2f    %7.2f    %s \n", (int) M, M, M, magma_time, cpu_time, (flag == 0 ? "ok" : "failed"));
+
+ }
+
+  void QR_decomp_size_test()
+  {
+    int M;
+    vector<int> sizes;
+
+    for (int i = 32; i <= 1087; i += 164){
+      sizes.push_back(i);
+    }
+
+    //for (int i = 1088; i <= 10304; i += 1024){
+    for (auto i = 1088; i <= 2500; i += 1024){
+      sizes.push_back(i);
+    }
+    cout << "\nTesting zgeqrf and zungqr (QR decomposition) :\n";
+    cout << "    M    N    K      MAGMA (s)      CPU (s)    result" << endl;
+    cout << "========================================================\n";
+
+    //    for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
+    for (auto it = sizes.begin() ; it != sizes.end(); ++it){
+      M = *it;
+      QR_decompose(M);
+    }
+  }
 
  void size_inverse_test()
  {
@@ -712,13 +860,15 @@ void eigen_double_complex_size_test()
 
  void matrix_size_linalg_test()
  {
-   //size_dgemm_magma_double_test();
+     //size_dgemm_magma_double_test();
      //size_inverse_test();
-   //dgemm_double_matrix_size_test();
-   //dgemm_double_complex_matrix_size_test();
+   dgemm_double_matrix_size_test();
+   zgemm_double_complex_matrix_size_test();
    //eigen_double_complex_size_test();
-   //LU_decomp_size_test();
+   LU_decomp_size_test();
    inverse_mtx_size_test();
+   linear_eq_size_test();
+     QR_decomp_size_test();
  }
 
 } //end namespace matrix_hao_lib
