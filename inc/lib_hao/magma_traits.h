@@ -154,7 +154,7 @@ public:
         LDDC = ((Cm+31)/32)*32;
 
         // Allocate memory for the matrices on GPU
-        t1 = magma_sync_wtime(NULL);
+        t1 = magma_sync_wtime(nullptr);
         magma_dmalloc(&d_A, LDDA*An);
         magma_dmalloc(&d_B, LDDB*Bn);
         magma_dmalloc(&d_C, LDDC*Cn);
@@ -164,7 +164,7 @@ public:
         magma_dsetmatrix(Bm, Bn, B, ldb, d_B, LDDB);
         // FIXME: If beta == 0, no need to do dsetmatrix-->just zero out "*d_C"
         magma_dsetmatrix(Cm, Cn, C, ldc, d_C, LDDC);
-        t2 = magma_sync_wtime(NULL);
+        t2 = magma_sync_wtime(nullptr);
         tm_transfer_in = t2 - t1;
 
         magma_dgemm(transA, transB, M, N, K,
@@ -172,12 +172,12 @@ public:
                     d_B, LDDB,
                     beta,  d_C, LDDC);
 
-        t3 = magma_sync_wtime(NULL);
+        t3 = magma_sync_wtime(nullptr);
         tm_blas = t3 - t2;
         // Copy solution from device (GPU) to host (CPU)
         magma_dgetmatrix(Cm, Cn, d_C, LDDC, C, ldc);
 
-        tm_transfer_out = magma_sync_wtime(NULL) - t3;
+        tm_transfer_out = magma_sync_wtime(nullptr) - t3;
 
         // Free memory on GPU
         magma_free(d_A);
@@ -259,7 +259,7 @@ public:
         LDDC = ((Cm+31)/32)*32;
 
         // Allocate memory for the matrices on GPU     
-        t1 = magma_sync_wtime(NULL);
+        t1 = magma_sync_wtime(nullptr);
         magma_zmalloc(&d_A, LDDA*An );
         magma_zmalloc(&d_B, LDDB*Bn );
         magma_zmalloc(&d_C, LDDC*Cn );
@@ -269,7 +269,7 @@ public:
         magma_zsetmatrix( Am, An, _cast_Zptr(A), lda, d_A, LDDA );
         magma_zsetmatrix( Bm, Bn, _cast_Zptr(B), ldb, d_B, LDDB );
         magma_zsetmatrix( Cm, Cn, _cast_Zptr(C), ldc, d_C, LDDC );
-        t2 = magma_sync_wtime(NULL);
+        t2 = magma_sync_wtime(nullptr);
         tm_transfer_in = t2 - t1;
       
         magma_zgemm(transA, transB, M, N, K,
@@ -277,12 +277,12 @@ public:
                     d_B, LDDB,
                     _cast_Z(beta),  d_C, LDDC);
 
-        t3 = magma_sync_wtime(NULL);
+        t3 = magma_sync_wtime(nullptr);
         tm_blas = t3 - t2;
       
         // Copy solution from device (GPU) to host (CPU)
         magma_zgetmatrix( Cm, Cn, d_C, LDDC, _cast_Zptr(C), ldc );
-	tm_transfer_out = magma_sync_wtime(NULL) - t3; 
+	tm_transfer_out = magma_sync_wtime(nullptr) - t3; 
         
 	// Free memory on GPU
         magma_free(d_A);
@@ -301,14 +301,14 @@ public:
         double *rwork, aux_rwork[1];
 	real_Double_t t1, t2;
 
-        //magma_zheevd( JOBZ, UPLO, N, NULL, lda, NULL,
+        //magma_zheevd( JOBZ, UPLO, N, nullptr, lda, nullptr,
         //              _cast_Zptr(work),  lwork, rwork, lrwork, iwork, liwork, info );
 
-	t1 = magma_sync_wtime(NULL);
-        magma_zheevd( JOBZ, UPLO, N, NULL, lda, NULL,
+	t1 = magma_sync_wtime(nullptr);
+        magma_zheevd( JOBZ, UPLO, N, nullptr, lda, nullptr,
                       aux_work,  lwork, aux_rwork, lrwork, aux_iwork, liwork, info );
 	
-	tm_query = magma_sync_wtime(NULL) - t1;
+	tm_query = magma_sync_wtime(nullptr) - t1;
 
         lwork  = (magma_int_t) MAGMA_Z_REAL( aux_work[0] );
         lrwork = (magma_int_t) aux_rwork[0];
@@ -319,11 +319,11 @@ public:
         magma_imalloc_cpu(&iwork, liwork);
         magma_zmalloc_pinned(&h_work, lwork);
 
-	t2 = magma_sync_wtime(NULL);
+	t2 = magma_sync_wtime(nullptr);
         magma_zheevd( JOBZ, UPLO, N, _cast_Zptr(A), lda, W,
                       h_work, lwork, rwork, lrwork, iwork, liwork, info );
 	
-	tm_blas = magma_sync_wtime(NULL) - t2;
+	tm_blas = magma_sync_wtime(nullptr) - t2;
 
         // free allocated memory
         magma_free_cpu(rwork);
@@ -348,23 +348,23 @@ public:
         ldda = ((lda+31)/32)*32;
         ldwork = N * magma_get_zgetri_nb(N); // magma_get_zgetri_nb optimizes the blocksize
 
+	t1 = magma_sync_wtime(nullptr);
         magma_zmalloc( &d_A, ldda*N );
         magma_zmalloc( &dwork, ldwork );
 
         // copy matrix from CPU to GPU
-	t1 = magma_sync_wtime(NULL);
         magma_zsetmatrix( N, N, _cast_Zptr(A), lda, d_A, ldda );
-	tm_transfer_in = magma_sync_wtime(NULL) - t1;
+	tm_transfer_in = magma_sync_wtime(nullptr) - t1;
 
         // calculate the inverse matrix with zgetri
-	t2 = magma_sync_wtime(NULL);
+	t2 = magma_sync_wtime(nullptr);
         magma_zgetri_gpu( N, d_A, ldda, ipiv, dwork, ldwork, info );
-	tm_blas = magma_sync_wtime(NULL) - t2;
+	tm_blas = magma_sync_wtime(nullptr) - t2;
 
         // copy matrix from GPU to CPU
-	t3 = magma_sync_wtime(NULL);
+	t3 = magma_sync_wtime(nullptr);
         magma_zgetmatrix( N, N, d_A, ldda, _cast_Zptr(A), lda );
-	tm_transfer_out = magma_sync_wtime(NULL) - t3;
+	tm_transfer_out = magma_sync_wtime(nullptr) - t3;
 
         magma_free( d_A );
         magma_free( dwork );
@@ -377,21 +377,28 @@ public:
         magma_trans_t Trans = magma_trans_const(trans);
         magmaDoubleComplex_ptr d_A, d_B;
         magma_int_t ldda, lddb;
+	real_Double_t t1, t2, t3;
         ldda = ((lda+31)/32)*32;
         lddb = ((ldb+31)/32)*32;
 
         //allocate memory on GPU
+	t1 = magma_sync_wtime(nullptr);
         magma_zmalloc( &d_A, ldda*N );
         magma_zmalloc( &d_B, lddb*N );
 
         // copy matrix from CPU to GPU
         magma_zsetmatrix( N, N, _cast_Zptr(A), lda, d_A, ldda );
         magma_zsetmatrix( N, N, _cast_Zptr(B), ldb, d_B, lddb );
+	tm_transfer_in = magma_sync_wtime(nullptr) - t1;
 
+	t2 = magma_sync_wtime(nullptr);
         magma_zgetrs_gpu( Trans, N, NRHS, d_A, ldda, ipiv, d_B, lddb, info );
+	tm_blas = magma_sync_wtime(nullptr) - t2;
 
         // copy matrix from GPU to CPU
+	t3 = magma_sync_wtime(nullptr);
         magma_zgetmatrix( N, N, d_B, lddb, _cast_Zptr(B), ldb );
+	tm_transfer_out = magma_sync_wtime(nullptr) - t3;
 
         // free memory
         magma_free( d_A );
