@@ -417,6 +417,7 @@ void zgemm_double_complex_matrix_size_test()
       real_Double_t cpu_time, magma_time;
       bool has_exact;
 
+      complex<double> *a_alt_ptr;
       Matrix<complex<double>,2> a(M, M); fill_random(a);
       Matrix<complex<double>,2> I(M, M);
       
@@ -439,12 +440,22 @@ void zgemm_double_complex_matrix_size_test()
       f77lapack_traits<BL_INT> xlapack_f77;
       linalg<BL_INT> LA_f77(&xlapack_f77);
 
+      // Hermitize the matrix:
       LA_f77.gmm(a, I, c, 'C', 'N');
-
       a = a + c;
 
       Matrix<complex<double>,2> a_lapack = a;
       check_Hermitian(a);
+      //cout << "a = \n" << a << endl;
+      //cout << "a_lapack = \n" << a << endl;
+
+      // HACK: reallocate with pinned memory
+      magma_int_t alloc_status = magma_zmalloc_pinned(reinterpret_cast<magmaDoubleComplex**>(&a_alt_ptr), M*M);
+      assert(alloc_status == MAGMA_SUCCESS);
+      copy(a.base_array, a.base_array+a.L_f(), a_alt_ptr);
+      a.point(M*M, a_alt_ptr);
+      cout << "Reallocated A array using zmalloc_pinned" << endl;
+      // END HACK
 
       //cout << "M = " << M << endl;
       //cout.flush();
@@ -492,6 +503,7 @@ void zgemm_double_complex_matrix_size_test()
      //cout<<setprecision(16);
      //cout<<w<<endl;
      //cout<<a<<endl;
+      magma_free_pinned(a_alt_ptr);
     }
 
 void eigen_double_complex_size_test()
