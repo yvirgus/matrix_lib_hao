@@ -511,7 +511,7 @@ void eigen_double_complex_size_test()
     int M;
     vector<int> sizes;
 
-    for (int i = 10; i <= 1000; i += 200){
+    for (int i = 210; i <= 1000; i += 200){
       sizes.push_back(i);
     }
 
@@ -526,6 +526,7 @@ void eigen_double_complex_size_test()
     for (auto it = sizes.begin() ; it != sizes.end(); ++it){
       M = *it;
       eigen_double_complex(M);
+      break;
     }
 
   }
@@ -874,13 +875,15 @@ void eigen_double_complex_size_test()
  {
      //size_dgemm_magma_double_test();
      //size_inverse_test();
+   /*
    dgemm_double_matrix_size_test();
    zgemm_double_complex_matrix_size_test();
-   //eigen_double_complex_size_test();
+   */   eigen_double_complex_size_test(); /*
    LU_decomp_size_test();
    inverse_mtx_size_test();
    linear_eq_size_test();
-     QR_decomp_size_test();
+   QR_decomp_size_test();
+   */
  }
 
 } //end namespace matrix_hao_lib
