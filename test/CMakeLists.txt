@@ -1,4 +1,4 @@
-set(matrix_test_srcs matrix_2d_blas_lapack_test.cpp matrix_class_test.cpp matrix_mpi_test.cpp test_all.cpp matrix_linalg_test.cpp matrix_size_linalg_test.cpp)
+set(matrix_test_srcs matrix_2d_blas_lapack_test.cpp matrix_class_test.cpp matrix_mpi_test.cpp test_all.cpp matrix_linalg_test.cpp matrix_size_linalg_test.cpp zheevd_test.cpp)
 
 add_executable(matrixtest ${matrix_test_srcs})
 
