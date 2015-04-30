@@ -2,6 +2,7 @@
 #define _LIB_HAO_MAGMA_TRAITS
 
 #include <complex>
+#include <cstdio>
 
 #include "magma.h"
 
@@ -319,11 +320,22 @@ public:
         magma_imalloc_cpu(&iwork, liwork);
         magma_zmalloc_pinned(&h_work, lwork);
 
+#if 1
+	using std::printf;
+	using std::fflush;
+	printf("magma_zheevd: N=%d, lda=%d, lwork=%d, lrwork=%d, liwork=%d\n",
+	       N, lda, lwork, lrwork, liwork);
+	fflush(stdout);
+#endif
 	t2 = magma_sync_wtime(nullptr);
         magma_zheevd( JOBZ, UPLO, N, _cast_Zptr(A), lda, W,
                       h_work, lwork, rwork, lrwork, iwork, liwork, info );
-	
 	tm_blas = magma_sync_wtime(nullptr) - t2;
+#if 1
+	printf("magma_zheevd: info=%d\n",
+	       *info);
+	fflush(stdout);
+#endif	
 
         // free allocated memory
         magma_free_cpu(rwork);
