@@ -36,6 +36,10 @@ using: jobz = Vectors needed, uplo = Lower
 
 */ 
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "acml.h"
 #include "matrix_define.h"
 #include "magma.h"
@@ -151,6 +155,17 @@ namespace matrix_hao_lib
 
  void zheevd_test()
  {
+#if defined(_OPENMP)
+    int omp_threads = 0;
+    #pragma omp parallel
+    {
+        omp_threads = omp_get_num_threads();
+    }
+    printf( "OpenMP threads %d.\n", omp_threads );
+#else
+    printf( "Code not compiled with OpenMP.\n" );
+#endif
+
      zheevd_size_test();
  }
 

@@ -136,9 +136,21 @@ public:
         liwork = *aux_iwork;
         int_t *iwork = new int_t[liwork];
 
+#if 1
+	using std::printf;
+	using std::fflush;
+	printf("zheevd: N=%d, lda=%d, lwork=%d, lrwork=%d, liwork=%d\n",
+	       N, lda, lwork, lrwork, liwork);
+	fflush(stdout);
+#endif
         FORTRAN_NAME(zheevd)(&jobz, &uplo, &N, _cast_Zptr(A), &lda, _cast_Dptr(W),
                              _cast_Zptr(work), &lwork, rwork, &lrwork,
                              iwork, &liwork, info);
+#if 1
+	printf("zheevd: info=%d\n",
+	       *info);
+	fflush(stdout);
+#endif
 
         delete[] work;
         delete[] rwork;
