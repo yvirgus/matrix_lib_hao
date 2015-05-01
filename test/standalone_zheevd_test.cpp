@@ -34,33 +34,40 @@ using: jobz = Vectors needed, uplo = Lower
   210      0.07             0.05
     | S_magma - S_lapack | / |S| = 3.04e-18   ok
 
-NOTE:
-
-As it turns out, the slowdown is related to using OpenMP threads > 1
-AND the code was compiled with MPI (mvapich2 version 1.9).
-Why?
-MVAPICH pins the core use to 1 while the program expects to have 8
-cores at its disposal.
-
 */ 
 
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include "acml.h"
-#include "matrix_define.h"
-#include "magma.h"
 #include <cstdio>
 #include <fstream>
 #include <cassert>
 #include <vector>
 #include <complex>
 #include <iostream>
+                         //#include <ctime>
+#include <sys/time.h>
+
+typedef struct
+{
+  double real, imag;
+} doubleccomplex;
+
+#define FORTRAN_NAME(x) x##_
+typedef  int              BL_INT;
+typedef  float            BL_FLOAT;
+typedef  double           BL_DOUBLE;
+typedef  doubleccomplex   BL_COMPLEX16;
+
+extern "C" void zheevd(char jobz, char uplo, int n, doubleccomplex *a, int lda, double *w, int *info);
+extern "C" void zheevd_(char *jobz, char *uplo, int *n, doubleccomplex *a, int *lda, double *w, doubleccomplex *work, int *lwork, double *rwork, int *lrwork, int *iwork, int *liwork, int *info, int jobz_len=1, int uplo_len=1);
+extern "C" void zlarnv(int idist, int *iseed, int n, doubleccomplex *x);
+extern "C" void zlarnv_(int *idist, int *iseed, int *n, doubleccomplex *x);
 
 using namespace std;
 
-namespace matrix_hao_lib
+namespace my_tests
 {
 
 #define Aij(i,j)  A[i + j*lda]
@@ -69,30 +76,27 @@ namespace matrix_hao_lib
     // Makes diagonal real.
     // Sets Aji = conj( Aij ) for j < i, that is, copy lower triangle to upper triangle.
     //extern "C"
-    void magma_zmake_hermitian( magma_int_t N, magmaDoubleComplex* A, magma_int_t lda )
+    void magma_zmake_hermitian( BL_INT N, complex<double>* A, BL_INT lda )
     {
-        magma_int_t i, j;
+        BL_INT i, j;
         for( i=0; i<N; ++i ) {
-            Aij(i,i) = MAGMA_Z_MAKE( MAGMA_Z_REAL( Aij(i,i) ), 0. );
+	  Aij(i,i) = std::complex<double>( Aij(i,i).real() , 0. );
             for( j=0; j<i; ++j ) {
-                Aij(j,i) = MAGMA_Z_CNJG( Aij(i,j) );
+	      Aij(j,i) = std::complex<double>( Aij(i,j).real(), Aij(i,j).imag() );
             }
         }
         
-        // for printing
-        for (int i=0; i<=3; i++ ){
-            for (int j=0; j<=3; j++ ){
-                std::cout << "(" << MAGMA_Z_REAL(Aij(i,j)) <<", " 
-                          << MAGMA_Z_IMAG(Aij(i,j)) << ")" << " ";
-            }
-            std::cout << std::endl;
-        }
-
     }
 
 #undef Aij 
    
 
+    double magma_wtime( void )
+    {
+        struct timeval t;
+        gettimeofday( &t, NULL );
+        return t.tv_sec + t.tv_usec*1e-6;
+    }
 
     void fill_random(complex<double>* A, BL_INT N)
     {
@@ -104,7 +108,8 @@ namespace matrix_hao_lib
 
     void zheevd_size_test()
     {
-        real_Double_t cpu_time;
+        double cpu_time;
+        //std::clock_t cpu_time;
         BL_INT N=210, lda=N, lwork=-1, lrwork=-1, aux_iwork[1], liwork=-1, info;
         char jobz='V', uplo='L';
         complex<double> *A = new complex<double>[N*lda];
@@ -117,7 +122,7 @@ namespace matrix_hao_lib
 
                 
         // Make matrix A into Hermitian
-        magma_zmake_hermitian( N, reinterpret_cast<magmaDoubleComplex*>(A), lda);
+        magma_zmake_hermitian( N, A, lda);
 
         for (int i=0; i<=3; i++ ){
             for (int j=0; j<=3; j++ ){
@@ -146,10 +151,12 @@ namespace matrix_hao_lib
             lwork << " " << lrwork << " " << liwork << endl; 
 
         cpu_time = magma_wtime();
+        //cpu_time = std::clock();
         FORTRAN_NAME(zheevd)(&jobz, &uplo, &N, reinterpret_cast<BL_COMPLEX16*>(A), &lda, 
                      reinterpret_cast<BL_DOUBLE*>(w), reinterpret_cast<BL_COMPLEX16*>(work),
                      &lwork, rwork, &lrwork, iwork, &liwork, &info);
         cpu_time = magma_wtime() - cpu_time;
+        //cpu_time = std::clock() - cpu_time;
         cout << "\nCPU time for zheevd : " << cpu_time << " with size N : " << N << "\n" <<  endl;
   
         delete[] A;
@@ -177,4 +184,13 @@ namespace matrix_hao_lib
      zheevd_size_test();
  }
 
-} //end namespace matrix_hao_lib
+} //end my_tests namespace
+
+
+int main(int argc, char** argv)
+{
+    using my_tests::zheevd_test;
+
+    zheevd_test();
+    return 0;
+}
