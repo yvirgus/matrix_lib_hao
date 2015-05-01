@@ -91,11 +91,25 @@ namespace matrix_hao_lib
 
     BL_INT lapack_ran_ISEED[4] = { 0, 127, 0, 127 };
 
+    void fill_random(Matrix<float,2> &A)
+    {
+        BL_INT itwo = 2;
+        BL_INT size_A = A.L1 * A.L2;
+        FORTRAN_NAME(slarnv)(&itwo, lapack_ran_ISEED, &size_A, A.base_array);
+    }
+
     void fill_random(Matrix<double,2> &A)
     {
         BL_INT itwo = 2;
         BL_INT size_A = A.L1 * A.L2;
         FORTRAN_NAME(dlarnv)(&itwo, lapack_ran_ISEED, &size_A, A.base_array);
+    }
+
+    void fill_random(Matrix<complex<float>,2> &A)
+    {
+        BL_INT itwo = 2;
+        BL_INT size_A = A.L1 * A.L2;
+        FORTRAN_NAME(clarnv)(&itwo, lapack_ran_ISEED, &size_A, reinterpret_cast<ccomplex*>(A.base_array));
     }
  
     void fill_random(Matrix<complex<double>,2> &A)
@@ -203,6 +217,105 @@ struct gemm_sizes {
     int M, N, K;
 };
 
+void sgemm_float_matrix(int M, int N, int K)
+ {
+     real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
+     bool has_exact;     
+
+     gflops = FLOPS_SGEMM( M, N, K ) / 1e9;
+
+     Matrix<float,2> a(M, K); fill_random(a);
+     Matrix<float,2> b(K, N); fill_random(b);
+     Matrix<float,2> c(M, N);
+     Matrix<float,2> c_exact(M, N);
+     has_exact = false;
+
+
+     f77lapack_traits<BL_INT> xlapack_f77;
+     linalg<BL_INT> LA_f77(&xlapack_f77);
+
+     //cout << "starting computation..." << endl;
+     cout.flush();
+
+     //------ Performing dgemm with lapack 
+     cpu_time = magma_wtime();
+     LA_f77.gmm(a, b, c, 'N', 'N');
+     cpu_time = magma_wtime() - cpu_time;
+     cpu_perf = gflops / cpu_time;
+     //cout << "cpu time: " << cpu_time << endl;
+     //cout.flush();
+     if (!has_exact) c_exact = c;
+
+     magma_traits<magma_int_t> xlapack;
+     linalg<magma_int_t> LA(&xlapack);
+
+     //------ Performing dgemm with magma
+  
+     LA.gmm(a, b, c, 'N', 'N');
+     magma_time = xlapack.tm_blas;
+     magma_perf = gflops / magma_time;
+     //cout << "gpu time: " << gpu_time << endl;
+     //cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     //cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     //cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     //cout.flush();
+
+     //cout << "    M     N     K    MAGMA Gflop/s (ms)  in (ms)  out (ms)     CPU Gflop/s (ms) " << endl;
+     //cout << "=======================================================================================\n";
+     //cout << "  " << M << "  " << N << "  " << K << "   " << magma_perf << " (" << magma_time*1000 << ")    " << xlapack.tm_transfer_in*1000 << "   " <<  xlapack.tm_transfer_out*1000 << "   " << cpu_perf << " (" << cpu_time*1000 << ")   ";
+
+     
+     size_t flag=0;
+     for(size_t i=0; i<c.L1; i++)
+     {
+         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-4) flag++;}
+     }
+     //if (flag==0) 
+       //cout<<"New gmm_magma passed double complex test! \n";
+       //cout << "ok" << endl;
+       //else
+       //cout << "WARNING!!!!!!!!! New gmm_magma failed double complex test! " << flag << " values mismatched" << endl;
+       //cout << "failed" << endl; 
+
+     printf("%5d %5d %5d   %7.2f (%7.2f) %7.2f %7.2f  %7.2f (%7.2f)    %s \n",  
+            M, N, K, magma_perf, magma_time*1000, xlapack.tm_transfer_in*1000, 
+            xlapack.tm_transfer_out*1000, cpu_perf, cpu_time*1000, (flag == 0 ? "ok" : "failed")); 
+  }
+
+void sgemm_float_matrix_size_test()
+  {
+    //int M, N, K;
+    //gemm_sizes mtx_sizes{10,5,8};
+    //mtx_sizes  = {1, 3, 7};
+    //cout << A.M << A.N << A.K << endl;
+    
+    //vector<int> sizes;
+    vector<gemm_sizes> mtx_sizes;
+
+
+    // With struct
+    for (int i = 8; i <= 1087; i *= 2){
+      gemm_sizes A = {i,i,i};
+      mtx_sizes.push_back(A);
+    }
+    //    for (int i = 256; i <= 2560; i += 256){
+    //for (int i = 1088; i <= 10304; i += 1024){
+    for (int i = 1088; i <= 5184; i += 1024){
+      gemm_sizes A = {i,i,i};
+      mtx_sizes.push_back(A);
+    }
+    cout << "\nTesting sgemm (Matrix Multiplication) :\n";
+    cout << "    M     N     K   MAGMA Gflop/s (ms)    in     out     CPU Gflop/s (ms)  result" << endl;
+    cout << "                                         (ms)    (ms)" << endl;
+    cout << "=================================================================================\n";
+
+    //    for (vector<int>::iterator it = mtx_sizes.begin() ; it != mtx_sizes.end(); ++it){
+    for (auto it = mtx_sizes.begin() ; it != mtx_sizes.end(); ++it){
+      //gemm_sizes &A = *it; 
+      sgemm_float_matrix(it->M, it->N, it->K);
+    }
+  }
+
 void dgemm_double_matrix(int M, int N, int K)
  {
      real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
@@ -255,7 +368,7 @@ void dgemm_double_matrix(int M, int N, int K)
      size_t flag=0;
      for(size_t i=0; i<c.L1; i++)
      {
-         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-5) flag++;}
+         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-11) flag++;}
      }
      //if (flag==0) 
        //cout<<"New gmm_magma passed double test! \n";
@@ -264,7 +377,9 @@ void dgemm_double_matrix(int M, int N, int K)
        //cout << "WARNING!!!!!!!!! New gmm_magma failed double test! " << flag << " values mismatched" << endl;
        //cout << "failed" << endl; 
 
-     printf("%5d %5d %5d   %7.2f (%7.2f) %7.2f %7.2f  %7.2f (%7.2f)    %s \n",  M, N, K, magma_perf, magma_time*1000, xlapack.tm_transfer_in*1000, xlapack.tm_transfer_out*1000, cpu_perf, cpu_time*1000, (flag == 0 ? "ok" : "failed")); 
+     printf("%5d %5d %5d   %7.2f (%7.2f) %7.2f %7.2f  %7.2f (%7.2f)    %s \n",  
+            M, N, K, magma_perf, magma_time*1000, xlapack.tm_transfer_in*1000, 
+            xlapack.tm_transfer_out*1000, cpu_perf, cpu_time*1000, (flag == 0 ? "ok" : "failed")); 
   }
 
 void dgemm_double_matrix_size_test()
@@ -294,15 +409,18 @@ void dgemm_double_matrix_size_test()
     }
     */
 
-    // With struct 
-    for (int i = 8; i <= 128; i *= 2){
+    // With struct
+    for (int i = 8; i <= 1087; i *= 2){
       gemm_sizes A = {i,i,i};
       mtx_sizes.push_back(A);
     }
-    for (int i = 256; i <= 2560; i += 256){
+    //    for (int i = 256; i <= 2560; i += 256){
+    //for (int i = 1088; i <= 10304; i += 1024){
+    for (int i = 1088; i <= 5184; i += 1024){
       gemm_sizes A = {i,i,i};
       mtx_sizes.push_back(A);
     }
+
     cout << "\nTesting dgemm (Matrix Multiplication) :\n";
     cout << "    M     N     K   MAGMA Gflop/s (ms)    in     out     CPU Gflop/s (ms)  result" << endl;
     cout << "                                         (ms)    (ms)" << endl;
@@ -312,6 +430,105 @@ void dgemm_double_matrix_size_test()
     for (auto it = mtx_sizes.begin() ; it != mtx_sizes.end(); ++it){
       //gemm_sizes &A = *it; 
       dgemm_double_matrix(it->M, it->N, it->K);
+    }
+  }
+
+void cgemm_float_complex_matrix(int M, int N, int K)
+ {
+     real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
+     bool has_exact;     
+
+     gflops = FLOPS_CGEMM( M, N, K ) / 1e9;
+
+     Matrix<complex<float>,2> a(M, K); fill_random(a);
+     Matrix<complex<float>,2> b(K, N); fill_random(b);
+     Matrix<complex<float>,2> c(M, N);
+     Matrix<complex<float>,2> c_exact(M, N);
+     has_exact = false;
+
+
+     f77lapack_traits<BL_INT> xlapack_f77;
+     linalg<BL_INT> LA_f77(&xlapack_f77);
+
+     //cout << "starting computation..." << endl;
+     cout.flush();
+
+     //------ Performing dgemm with lapack 
+     cpu_time = magma_wtime();
+     LA_f77.gmm(a, b, c, 'N', 'N');
+     cpu_time = magma_wtime() - cpu_time;
+     cpu_perf = gflops / cpu_time;
+     //cout << "cpu time: " << cpu_time << endl;
+     //cout.flush();
+     if (!has_exact) c_exact = c;
+
+     magma_traits<magma_int_t> xlapack;
+     linalg<magma_int_t> LA(&xlapack);
+
+     //------ Performing dgemm with magma
+  
+     LA.gmm(a, b, c, 'N', 'N');
+     magma_time = xlapack.tm_blas;
+     magma_perf = gflops / magma_time;
+     //cout << "gpu time: " << gpu_time << endl;
+     //cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     //cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     //cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     //cout.flush();
+
+     //cout << "    M     N     K    MAGMA Gflop/s (ms)  in (ms)  out (ms)     CPU Gflop/s (ms) " << endl;
+     //cout << "=======================================================================================\n";
+     //cout << "  " << M << "  " << N << "  " << K << "   " << magma_perf << " (" << magma_time*1000 << ")    " << xlapack.tm_transfer_in*1000 << "   " <<  xlapack.tm_transfer_out*1000 << "   " << cpu_perf << " (" << cpu_time*1000 << ")   ";
+
+     
+     size_t flag=0;
+     for(size_t i=0; i<c.L1; i++)
+     {
+         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-4) flag++;}
+     }
+     //if (flag==0) 
+       //cout<<"New gmm_magma passed double complex test! \n";
+       //cout << "ok" << endl;
+       //else
+       //cout << "WARNING!!!!!!!!! New gmm_magma failed double complex test! " << flag << " values mismatched" << endl;
+       //cout << "failed" << endl; 
+
+     printf("%5d %5d %5d   %7.2f (%7.2f) %7.2f %7.2f  %7.2f (%7.2f)    %s \n",  
+            M, N, K, magma_perf, magma_time*1000, xlapack.tm_transfer_in*1000, 
+            xlapack.tm_transfer_out*1000, cpu_perf, cpu_time*1000, (flag == 0 ? "ok" : "failed")); 
+  }
+
+void cgemm_float_complex_matrix_size_test()
+  {
+    //int M, N, K;
+    //gemm_sizes mtx_sizes{10,5,8};
+    //mtx_sizes  = {1, 3, 7};
+    //cout << A.M << A.N << A.K << endl;
+    
+    //vector<int> sizes;
+    vector<gemm_sizes> mtx_sizes;
+
+
+    // With struct
+    for (int i = 8; i <= 1087; i *= 2){
+      gemm_sizes A = {i,i,i};
+      mtx_sizes.push_back(A);
+    }
+    //    for (int i = 256; i <= 2560; i += 256){
+    //for (int i = 1088; i <= 10304; i += 1024){
+    for (int i = 1088; i <= 5184; i += 1024){
+      gemm_sizes A = {i,i,i};
+      mtx_sizes.push_back(A);
+    }
+    cout << "\nTesting cgemm (Matrix Multiplication) :\n";
+    cout << "    M     N     K   MAGMA Gflop/s (ms)    in     out     CPU Gflop/s (ms)  result" << endl;
+    cout << "                                         (ms)    (ms)" << endl;
+    cout << "=================================================================================\n";
+
+    //    for (vector<int>::iterator it = mtx_sizes.begin() ; it != mtx_sizes.end(); ++it){
+    for (auto it = mtx_sizes.begin() ; it != mtx_sizes.end(); ++it){
+      //gemm_sizes &A = *it; 
+      cgemm_float_complex_matrix(it->M, it->N, it->K);
     }
   }
 
@@ -366,7 +583,7 @@ void zgemm_double_complex_matrix(int M, int N, int K)
      size_t flag=0;
      for(size_t i=0; i<c.L1; i++)
      {
-         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-5) flag++;}
+         for(size_t j=0; j<c.L2; j++) {if(abs(c(i,j)-c_exact(i,j))>1e-11) flag++;}
      }
      //if (flag==0) 
        //cout<<"New gmm_magma passed double complex test! \n";
@@ -389,15 +606,18 @@ void zgemm_double_complex_matrix_size_test()
     vector<gemm_sizes> mtx_sizes;
 
 
-    // With struct 
-    for (int i = 8; i <= 128; i *= 2){
+    // With struct
+    for (int i = 8; i <= 1087; i *= 2){
       gemm_sizes A = {i,i,i};
       mtx_sizes.push_back(A);
     }
-    for (int i = 256; i <= 2560; i += 256){
+    //    for (int i = 256; i <= 2560; i += 256){
+    //for (int i = 1088; i <= 10304; i += 1024){
+    for (int i = 1088; i <= 5184; i += 1024){
       gemm_sizes A = {i,i,i};
       mtx_sizes.push_back(A);
     }
+
     cout << "\nTesting zgemm (Matrix Multiplication) :\n";
     cout << "    M     N     K   MAGMA Gflop/s (ms)    in     out     CPU Gflop/s (ms)  result" << endl;
     cout << "                                         (ms)    (ms)" << endl;
@@ -411,7 +631,7 @@ void zgemm_double_complex_matrix_size_test()
   }
 
 
-    void eigen_double_complex(int M=1088)
+    void eigen_double_complex(int M=1088, char jobz='V', char uplo='L')
     {
       
       real_Double_t cpu_time, magma_time;
@@ -454,7 +674,7 @@ void zgemm_double_complex_matrix_size_test()
       assert(alloc_status == MAGMA_SUCCESS);
       copy(a.base_array, a.base_array+a.L_f(), a_alt_ptr);
       a.point(M*M, a_alt_ptr);
-      cout << "Reallocated A array using zmalloc_pinned" << endl;
+      //cout << "Reallocated A array using zmalloc_pinned" << endl;
       // END HACK
 
       //cout << "M = " << M << endl;
@@ -462,7 +682,8 @@ void zgemm_double_complex_matrix_size_test()
 
       //------ Performing eigen with lapack 
       cpu_time = magma_wtime();
-      LA_f77.eigen(a_lapack, w_lapack, 'V', 'L');     
+      //LA_f77.eigen(a_lapack, w_lapack, 'V', 'L');     
+      LA_f77.eigen(a_lapack, w_lapack, jobz, uplo);     
       //eigen(a_lapack, w_lapack, 'V', 'L');
       cpu_time = magma_wtime() - cpu_time;
       //  cout << "CPU time (sec) " << cpu_time << endl;
@@ -480,8 +701,9 @@ void zgemm_double_complex_matrix_size_test()
       //cout << "M = " << M << endl;
       //cout.flush();
       //------ Performing eigen with magma
-      magma_time = magma_wtime();                     
-      LA.eigen(a, w, 'V', 'L');   
+      magma_time = magma_wtime();
+      //LA.eigen(a, w, 'V', 'L'); 
+      LA.eigen(a, w, jobz, uplo);   
       //eigen_magma(a,w, 'V', 'L');
       magma_time = magma_wtime() - magma_time;          
       //      cout << "GPU time (sec) " << magma_time << endl;
@@ -490,12 +712,14 @@ void zgemm_double_complex_matrix_size_test()
       size_t flag=0;
       for(size_t i=0; i<a.L1; i++)
 	{
-	  for(size_t j=0; j<a.L2; j++) {if(abs(abs(a(i,j))-abs(a_exact(i,j)))>1e-13) flag++;}
+	  for(size_t j=0; j<a.L2; j++) {if(abs(abs(a(i,j))-abs(a_exact(i,j)))>1e-12) flag++;}
 	}
 
-      for(size_t i=0; i<w.L1; i++) {if(abs(w(i)-w_exact(i))>1e-13) flag++;}
+      for(size_t i=0; i<w.L1; i++) {if(abs(w(i)-w_exact(i))>1e-12) flag++;}
 
-      printf("%5d     %7.3f       %7.3f       %7.3f       %7.3f        %s \n",  M, magma_time, xlapack.tm_query, xlapack.tm_blas,  cpu_time, (flag == 0 ? "ok" : "failed"));
+      //printf("%5d     %7.3f       %7.3f       %7.3f       %7.3f        %s \n",  
+      //          M, magma_time, xlapack.tm_query, xlapack.tm_blas,  cpu_time, (flag == 0 ? "ok" : "failed"));
+      printf("%5d     %7.3f          %7.3f        %s \n",  M, magma_time, cpu_time, (flag == 0 ? "ok" : "failed"));
       
       //      cout << "flag = " << flag << endl;
       //      if(flag==0) cout<<"New Eigen passed Hermition test! \n";
@@ -509,24 +733,29 @@ void zgemm_double_complex_matrix_size_test()
 void eigen_double_complex_size_test()
   {
     int M;
+    char jobz='V', uplo='L'; 
     vector<int> sizes;
 
     for (int i = 210; i <= 1000; i += 200){
       sizes.push_back(i);
     }
 
-    for (int i = 1088; i <= 4160; i += 1024){
+    for (int i = 1088; i <= 10304; i += 1024){
         sizes.push_back(i);
     }
-    cout << "\nTesting zheevd (Eigen) :\n";
-    cout << "    M    GPU time (s) query time (s) zheevd time (s) CPU time (s)  result" << endl;
-    cout << "===========================================================================\n";
+    //cout << "\nTesting zheevd (Eigen) using: jobz = %s, uplo = %s\n", (jobz == 'V' ? "Vectors needed" : "No vectors"), (uplo == 'L' ? "Lower" : "Upper") ;
+    //cout << "    M    GPU time (s) query time (s) zheevd time (s) CPU time (s)  result" << endl;
+    //cout << "===========================================================================\n";
+
+    printf("\nTesting zheevd (Eigen) using: jobz = %s, uplo = %s\n", (jobz == 'V' ? "Vectors needed" : "No vectors"), (uplo == 'L' ? "Lower" : "Upper"));
+    cout << "    M    GPU time (s)    CPU time (s)   result" << endl;
+    cout << "==============================================\n";
 
     //    for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
     for (auto it = sizes.begin() ; it != sizes.end(); ++it){
       M = *it;
-      eigen_double_complex(M);
-      break;
+      eigen_double_complex(M, jobz, uplo);
+      //break;
     }
 
   }
@@ -585,12 +814,12 @@ void eigen_double_complex_size_test()
     int M;
     vector<int> sizes;
 
-    for (int i = 32; i <= 1087; i += 164){
+    for (int i = 16; i <= 1087; i += 128){
       sizes.push_back(i);
     }
 
-    //for (int i = 1088; i <= 10304; i += 1024){
-    for (auto i = 1088; i <= 2500; i += 1024){
+    for (int i = 1088; i <= 10304; i += 1024){
+    //for (auto i = 1088; i <= 2500; i += 1024){
       sizes.push_back(i);
     }
     cout << "\nTesting zgetrf (LU decomposition) :\n";
@@ -649,7 +878,7 @@ void eigen_double_complex_size_test()
      {
          for(size_t j=0; j<A_exact.L2; j++) {if(abs(A(i,j)-A_exact(i,j))>1e-12) flag++;}
      }
-      printf("%5d  %7.2f (%7.2f)    %7.2f (%7.2f)    %s \n", (int) M, magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
+      printf("%5d  %7.2f (%7.3f)    %7.2f (%7.3f)    %s \n", (int) M, magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
       //if(flag==0) cout<<"New Inverse passed complex double test! \n";
       //else cout<<"WARNING!!!!!!!!! New Inverse failed complex double test! \n";
   }
@@ -659,14 +888,16 @@ void eigen_double_complex_size_test()
     int M;
     vector<int> sizes;
 
-    for (int i = 32; i <= 1087; i += 164){
-      sizes.push_back(i);
-    }
 
-    //for (int i = 1088; i <= 10304; i += 1024){
-    for (auto i = 1088; i <= 2500; i += 1024){
+    for (int i = 8; i <= 1087; i *= 2){
       sizes.push_back(i);
     }
+    /*    
+    for (int i = 1088; i <= 10304; i += 1024){
+        //for (auto i = 1088; i <= 2500; i += 1024){
+      sizes.push_back(i);
+    }
+    */
     cout << "\nTesting zgetri (Inverse Matrix) :\n";
     cout << "   M    MAGMA Gflop/s (s)     CPU Gflop/s (s)  result" << endl;
     cout << "========================================================\n";
@@ -728,7 +959,7 @@ void eigen_double_complex_size_test()
      //if(flag==0) cout<<"New Solve_lineq passed complex double test! \n";
      //else cout<<"WARNING!!!!!!!!! New Solve_lineq failed complex double test! \n";
 
-     printf("%5d  %5d  %7.2f (%7.2f)    %7.2f (%7.2f)    %s \n", (int) M, M, magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
+     printf("%5d  %5d  %7.2f (%7.3f)    %7.2f (%7.3f)    %s \n", (int) M, M, magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
 
   }
 
@@ -736,15 +967,16 @@ void eigen_double_complex_size_test()
   {
     int M;
     vector<int> sizes;
-
-    for (int i = 32; i <= 1087; i += 164){
+    
+    for (int i = 8; i <= 1087; i *= 2 ){
       sizes.push_back(i);
     }
-
+    /*
     for (int i = 1088; i <= 10304; i += 1024){
     //for (auto i = 1088; i <= 2500; i += 1024){
       sizes.push_back(i);
     }
+    */
     cout << "\nTesting zgetrs (Solving Linear Equation) :\n";
     cout << "   M   NRHS   MAGMA Gflop/s (s)     CPU Gflop/s (s)  result" << endl;
     cout << "========================================================\n";
@@ -796,7 +1028,7 @@ void eigen_double_complex_size_test()
      //if(flag==0) cout<<"New QRMatrix magma passed complex double test! \n";
      //else cout<<"WARNING!!!!!!!!! New QRMatrix magma failed complex double test! \n";
 
-      printf("%5d %5d %5d  %7.2f    %7.2f    %s \n", (int) M, M, M, magma_time, cpu_time, (flag == 0 ? "ok" : "failed"));
+      printf("%5d %5d %5d  %7.5f    %7.5f    %s \n", (int) M, M, M, magma_time, cpu_time, (flag == 0 ? "ok" : "failed"));
 
  }
 
@@ -805,17 +1037,17 @@ void eigen_double_complex_size_test()
     int M;
     vector<int> sizes;
 
-    for (int i = 32; i <= 1087; i += 164){
+    for (int i = 8; i <= 1087; i *= 2){
       sizes.push_back(i);
     }
 
     //for (int i = 1088; i <= 10304; i += 1024){
-    for (auto i = 1088; i <= 2500; i += 1024){
+    for (auto i = 1088; i <= 5184; i += 1024){
       sizes.push_back(i);
     }
     cout << "\nTesting zgeqrf and zungqr (QR decomposition) :\n";
     cout << "    M    N    K      MAGMA (s)      CPU (s)    result" << endl;
-    cout << "========================================================\n";
+    cout << "=====================================================\n";
 
     //    for (vector<int>::iterator it = sizes.begin() ; it != sizes.end(); ++it){
     for (auto it = sizes.begin() ; it != sizes.end(); ++it){
@@ -875,15 +1107,17 @@ void eigen_double_complex_size_test()
  {
      //size_dgemm_magma_double_test();
      //size_inverse_test();
-   /*
-   dgemm_double_matrix_size_test();
-   zgemm_double_complex_matrix_size_test();
-   */   eigen_double_complex_size_test(); /*
-   LU_decomp_size_test();
-   inverse_mtx_size_test();
-   linear_eq_size_test();
-   QR_decomp_size_test();
-   */
+
+     //sgemm_float_matrix_size_test();
+     //dgemm_double_matrix_size_test();
+     //cgemm_float_complex_matrix_size_test();
+     // zgemm_double_complex_matrix_size_test();
+   eigen_double_complex_size_test();    
+   //LU_decomp_size_test();
+   //inverse_mtx_size_test();
+   //linear_eq_size_test();
+   //QR_decomp_size_test();
+   
  }
 
 } //end namespace matrix_hao_lib
