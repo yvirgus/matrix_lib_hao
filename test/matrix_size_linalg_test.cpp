@@ -1112,7 +1112,7 @@ void eigen_double_complex_size_test()
      //dgemm_double_matrix_size_test();
      //cgemm_float_complex_matrix_size_test();
      // zgemm_double_complex_matrix_size_test();
-   eigen_double_complex_size_test();    
+     //eigen_double_complex_size_test();    
    //LU_decomp_size_test();
    //inverse_mtx_size_test();
    //linear_eq_size_test();
