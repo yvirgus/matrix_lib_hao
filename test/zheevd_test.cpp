@@ -48,7 +48,6 @@ cores at its disposal.
 #include <omp.h>
 #endif
 
-#include "acml.h"
 #include "lib_hao/matrix_define.h"
 #include "magma.h"
 #include <cstdio>
