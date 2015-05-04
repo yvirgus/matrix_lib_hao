@@ -32,22 +32,42 @@ public:
     typedef double_t *double_ptr_t;
     typedef ccomplex_t *ccomplex_ptr_t;
     typedef zcomplex_t *zcomplex_ptr_t;
+    typedef const single_t *const_single_ptr_t;
+    typedef const double_t *const_double_ptr_t;
+    typedef const ccomplex_t *const_ccomplex_ptr_t;
+    typedef const zcomplex_t *const_zcomplex_ptr_t;
 
-    static single_ptr_t _cast_Sptr(const float *A)
+    static single_ptr_t _cast_Sptr(float *A)
     {
-        return const_cast<single_ptr_t>(A);
+        return A;
     }
-    static double_ptr_t _cast_Dptr(const double *A)
+    static double_ptr_t _cast_Dptr(double *A)
     {
-        return const_cast<double_ptr_t>(A);
+        return A;
     }
-    static ccomplex_ptr_t _cast_Cptr(const std::complex<float> *A)
+    static ccomplex_ptr_t _cast_Cptr(std::complex<float> *A)
     {
-        return reinterpret_cast<ccomplex_ptr_t>(const_cast<std::complex<float> *>(A));
+        return reinterpret_cast<ccomplex_ptr_t>(A);
     }
-    static zcomplex_ptr_t _cast_Zptr(const std::complex<double> *A)
+    static zcomplex_ptr_t _cast_Zptr(std::complex<double> *A)
     {
-        return reinterpret_cast<zcomplex_ptr_t>(const_cast<std::complex<double> *>(A));
+        return reinterpret_cast<zcomplex_ptr_t>(A);
+    }
+    static const_single_ptr_t _cast_Sptr(const float *A)
+    {
+        return A;
+    }
+    static const_double_ptr_t _cast_Dptr(const double *A)
+    {
+        return A;
+    }
+    static const_ccomplex_ptr_t _cast_Cptr(const std::complex<float> *A)
+    {
+        return reinterpret_cast<const_ccomplex_ptr_t>(A);
+    }
+    static const_zcomplex_ptr_t _cast_Zptr(const std::complex<double> *A)
+    {
+        return reinterpret_cast<const_zcomplex_ptr_t>(A);
     }
     static ccomplex_t _cast_C(const std::complex<float> &Z)
     {  
@@ -338,7 +358,7 @@ public:
         magma_imalloc_cpu(&iwork, liwork);
         magma_zmalloc_pinned(&h_work, lwork);
 
-#if 1
+#if 0
 	using std::printf;
 	using std::fflush;
 	printf("magma_zheevd: N=%d, lda=%d, lwork=%d, lrwork=%d, liwork=%d\n",
@@ -349,7 +369,7 @@ public:
         magma_zheevd( JOBZ, UPLO, N, _cast_Zptr(A), lda, W,
                       h_work, lwork, rwork, lrwork, iwork, liwork, info );
 	tm_blas = magma_sync_wtime(nullptr) - t2;
-#if 1
+#if 0
 	printf("magma_zheevd: info=%d\n",
 	       *info);
 	fflush(stdout);

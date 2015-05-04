@@ -45,22 +45,42 @@ public:
     typedef double_t *double_ptr_t;
     typedef ccomplex_t *ccomplex_ptr_t;
     typedef zcomplex_t *zcomplex_ptr_t;
+    typedef const single_t *const_single_ptr_t;
+    typedef const double_t *const_double_ptr_t;
+    typedef const ccomplex_t *const_ccomplex_ptr_t;
+    typedef const zcomplex_t *const_zcomplex_ptr_t;
 
-    static single_ptr_t _cast_Sptr(const float *A)
+    static single_ptr_t _cast_Sptr(float *A)
     {
-        return const_cast<single_ptr_t>(A);
+        return A;
     }
-    static double_ptr_t _cast_Dptr(const double *A)
+    static double_ptr_t _cast_Dptr(double *A)
     {
-        return const_cast<double_ptr_t>(A);
+        return A;
     }
-    static ccomplex_ptr_t _cast_Cptr(const std::complex<float> *A)
+    static ccomplex_ptr_t _cast_Cptr(std::complex<float> *A)
     {
-        return reinterpret_cast<ccomplex_ptr_t>(const_cast<std::complex<float> *>(A));
+        return reinterpret_cast<ccomplex_ptr_t>(A);
     }
-    static zcomplex_ptr_t _cast_Zptr(const std::complex<double> *A)
+    static zcomplex_ptr_t _cast_Zptr(std::complex<double> *A)
     {
-        return reinterpret_cast<zcomplex_ptr_t>(const_cast<std::complex<double> *>(A));
+        return reinterpret_cast<zcomplex_ptr_t>(A);
+    }
+    static const_single_ptr_t _cast_Sptr(const float *A)
+    {
+        return A;
+    }
+    static const_double_ptr_t _cast_Dptr(const double *A)
+    {
+        return A;
+    }
+    static const_ccomplex_ptr_t _cast_Cptr(const std::complex<float> *A)
+    {
+        return reinterpret_cast<const_ccomplex_ptr_t>(A);
+    }
+    static const_zcomplex_ptr_t _cast_Zptr(const std::complex<double> *A)
+    {
+        return reinterpret_cast<const_zcomplex_ptr_t>(A);
     }
 
     // Dispatch functions: all of these define the are pure virtual
@@ -136,7 +156,7 @@ public:
         liwork = *aux_iwork;
         int_t *iwork = new int_t[liwork];
 
-#if 1
+#if 0
 	using std::printf;
 	using std::fflush;
 	printf("zheevd: N=%d, lda=%d, lwork=%d, lrwork=%d, liwork=%d\n",
@@ -146,7 +166,7 @@ public:
         FORTRAN_NAME(zheevd)(&jobz, &uplo, &N, _cast_Zptr(A), &lda, _cast_Dptr(W),
                              _cast_Zptr(work), &lwork, rwork, &lrwork,
                              iwork, &liwork, info);
-#if 1
+#if 0
 	printf("zheevd: info=%d\n",
 	       *info);
 	fflush(stdout);
