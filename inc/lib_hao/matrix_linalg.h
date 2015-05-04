@@ -1,11 +1,8 @@
 #ifndef MATRIX_HAO_LINALG
 #define MATRIX_HAO_LINALG
 
-/*#define "lib_hao/matrix_2d.h"
-  #define "lib_hao/blas_lapack_trait.h"*/
-
 #include <cmath>
-#include "matrix_2d.h"
+#include "lib_hao/matrix_2d.h"
 #include "lib_hao/blas_lapack_traits.h"
 
 using std::cout;

@@ -12,7 +12,7 @@
 #endif
 
 #include "lib_hao/blas_lapack_traits.h"
-#include "matrix_define.h"
+#include "lib_hao/matrix_define.h"
 
 
 namespace matrix_hao_lib

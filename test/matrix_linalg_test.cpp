@@ -475,9 +475,10 @@ void new_LU_decomp_magma_test()
 
  void matrix_linalg_test()
  {
-     /*
+     
      new_dgemm_f77_double_test();
      new_dgemm_magma_double_test();
+     /*
      new_dgemm_f77_complexDouble_test();
      new_dgemm_magma_complexDouble_test();
      new_eigen_test();

@@ -49,7 +49,7 @@ cores at its disposal.
 #endif
 
 #include "acml.h"
-#include "matrix_define.h"
+#include "lib_hao/matrix_define.h"
 #include "magma.h"
 #include <cstdio>
 #include <fstream>

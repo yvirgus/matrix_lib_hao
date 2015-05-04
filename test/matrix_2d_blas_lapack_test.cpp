@@ -681,9 +681,10 @@ namespace matrix_hao_lib
 
  void matrix_2d_blas_lapack_test()
  {
-     /*
+     
      gmm_float_test();
      gmm_magma_float_test();
+     /*
      gmm_double_test();
      gmm_magma_double_test();
      gmm_complexfloat_test();

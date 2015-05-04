@@ -3,7 +3,7 @@
 
 #include "magma.h"
 /*#include "magma_lapack.h"*/
-#include "matrix_define.h"
+#include "lib_hao/matrix_define.h"
 
 namespace matrix_hao_lib
 {
