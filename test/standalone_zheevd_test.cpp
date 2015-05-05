@@ -40,6 +40,10 @@ using: jobz = Vectors needed, uplo = Lower
 #include <omp.h>
 #endif
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
 #include <cstdio>
 #include <fstream>
 #include <cassert>
@@ -191,6 +195,23 @@ int main(int argc, char** argv)
 {
     using my_tests::zheevd_test;
 
+#ifdef USE_MPI    
+    // Initialize the MPI library:
+    MPI::Init(argc, argv);
+
+    // Get the number of processors this job is using:
+    //int rank = MPI::COMM_WORLD.Get_rank();
+
+    // Get the rank of the processor this thread is running on.  (Each
+    // processor has a unique rank.)
+    //int size = MPI::COMM_WORLD.Get_size();
+#endif 
+
     zheevd_test();
+
+#ifdef USE_MPI    
+    // Tell the MPI library to release all resources it is using:
+    MPI::Finalize();
+#endif
     return 0;
 }
