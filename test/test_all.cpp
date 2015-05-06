@@ -8,7 +8,7 @@ namespace matrix_hao_lib
  void matrix_2d_blas_lapack_test();
  void matrix_linalg_test();
  void matrix_size_linalg_test();
- void zheevd_test();
+    //void zheevd_test();
 }
 
 using namespace std;
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
         matrix_2d_blas_lapack_test();
         matrix_linalg_test();
         matrix_size_linalg_test();
-        zheevd_test();
+        //zheevd_test();
     }
 
 #ifdef MPI_HAO
