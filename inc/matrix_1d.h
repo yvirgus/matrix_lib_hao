@@ -1,6 +1,8 @@
 #ifndef MATRIX_HAO_1D
 #define MATRIX_HAO_1D
 
+#include "lib_hao/matrix_base.h"
+
 namespace matrix_hao_lib
 {
 
