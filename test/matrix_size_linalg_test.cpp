@@ -850,7 +850,7 @@ void eigen_double_complex_size_test()
      LU_decomp<complex<double>,BL_INT>  LU_lapack( A_lapack, &xlapack_f77 );
 
      cpu_time = magma_wtime();
-     A_lapack = LU_lapack.inverse_in();
+     A_lapack = LU_lapack.inverse();
      cpu_time = magma_wtime() - cpu_time;
      cpu_perf = gflops / cpu_time;
      //cout << "CPU time : " << cpu_time << endl;
@@ -864,7 +864,7 @@ void eigen_double_complex_size_test()
      LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
 
      magma_time = magma_wtime();
-     A=LU.inverse_in();
+     A=LU.inverse();
      magma_time = magma_wtime() - magma_time;
      magma_perf = gflops / xlapack.tm_blas;
      //cout << "gpu time: " << magma_time << endl;
@@ -928,7 +928,7 @@ void eigen_double_complex_size_test()
      LU_decomp<complex<double>,BL_INT>  LU_lapack( A_lapack, &xlapack_f77 );
 
      cpu_time = magma_wtime();
-     Matrix<complex<double>,2> X_lapack=LU_lapack.solve_lineq_in(B_lapack);
+     Matrix<complex<double>,2> X_lapack=LU_lapack.solve_lineq(B_lapack);
      cpu_time = magma_wtime() - cpu_time;
      cpu_perf = gflops / cpu_time;
      //cout << "CPU time : " << cpu_time << endl;
@@ -942,7 +942,7 @@ void eigen_double_complex_size_test()
      LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
 
      magma_time = magma_wtime();
-     Matrix<complex<double>,2> X=LU.solve_lineq_in(B);
+     Matrix<complex<double>,2> X=LU.solve_lineq(B);
      magma_time = magma_wtime() - magma_time;
      magma_perf = gflops / xlapack.tm_blas;
      //cout << "gpu time: " << magma_time << endl;
@@ -1071,7 +1071,7 @@ void eigen_double_complex_size_test()
      cout << "cpu time: " << cpu_time << endl;
      
      cpu_time = magma_wtime();
-     A=LU_f77.inverse_in();
+     A=LU_f77.inverse();
      cpu_time = magma_wtime() - cpu_time;
      cout << "cpu time: " << cpu_time << endl;
      
@@ -1086,7 +1086,7 @@ void eigen_double_complex_size_test()
      cout <<"gpu time: " << gpu_time << endl;
 
      gpu_time = magma_wtime();
-     B=LU_magma.inverse_in();
+     B=LU_magma.inverse();
      gpu_time = magma_wtime() - gpu_time;
      cout <<"gpu time: " << gpu_time << endl;
      

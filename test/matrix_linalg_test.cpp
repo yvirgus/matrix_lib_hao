@@ -320,7 +320,7 @@ void new_LU_decomp_magma_test()
      f77lapack_traits<BL_INT> xlapack;
      LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
 
-     complex<double> det = LU.determinant_in();
+     complex<double> det = LU.determinant();
 
      complex<double> det_exact={123.11968700000003,3.3324580000000115};
      if(abs(det-det_exact)<1e-13) cout<<"New Determinant passed complex double test! \n";
@@ -339,7 +339,7 @@ void new_LU_decomp_magma_test()
      f77lapack_traits<BL_INT> xlapack;
      LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
 
-     complex<double> logdet=LU.log_determinant_in();
+     complex<double> logdet=LU.log_determinant();
 
      complex<double> logdet_exact={716.3123168546207,0.027060209772387683};
      if(abs(logdet-logdet_exact)<1e-12) cout<<"New Log_determinant passed complex double test! \n";
@@ -370,7 +370,7 @@ void new_LU_decomp_magma_test()
      magma_traits<magma_int_t> xlapack;
      LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
 
-     A=LU.inverse_in();
+     A=LU.inverse();
      //cout << A << endl;
      size_t flag=0;
      for(size_t i=0; i<A_exact.L1; i++)
@@ -401,7 +401,7 @@ void new_LU_decomp_magma_test()
      f77lapack_traits<BL_INT> xlapack;
      LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
 
-     Matrix<complex<double>,2> X=LU.solve_lineq_in(B);
+     Matrix<complex<double>,2> X=LU.solve_lineq(B);
 
      size_t flag=0;
      for(size_t i=0; i<X_exact.L1; i++)
