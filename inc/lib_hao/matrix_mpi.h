@@ -3,7 +3,7 @@
 
 #ifdef MPI_HAO
 
-
+#include "lib_hao/matrix_base.h"
 #include <mpi.h>
 #include <complex>
 namespace matrix_hao_lib

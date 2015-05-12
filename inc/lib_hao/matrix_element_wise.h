@@ -1,6 +1,7 @@
 #ifndef MATRIX_HAO_ELEMENT_WISE
 #define MATRIX_HAO_ELEMENT_WISE
 
+#include "lib_hao/matrix_base.h"
 #include <cmath>
 
 namespace matrix_hao_lib
