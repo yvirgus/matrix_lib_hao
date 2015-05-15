@@ -737,16 +737,16 @@ Matrix<complex<double>,2> solve_lineq_magma(const LUDecomp_magma<complex<double>
      
      //allocate memory on GPU
      magma_zmalloc( &d_A, ldda*N );
-     magma_zmalloc( &d_B, lddb*N );
+     magma_zmalloc( &d_B, lddb*nrhs );
 
      // copy matrix from CPU to GPU
      magma_zsetmatrix( N, N, _cast_Zptr_magma(x.A.base_array), lda, d_A, ldda );
-     magma_zsetmatrix( N, N, _cast_Zptr_magma(M.base_array), ldb, d_B, lddb );
+     magma_zsetmatrix( N, nrhs, _cast_Zptr_magma(M.base_array), ldb, d_B, lddb );
 
      magma_zgetrs_gpu( trans, N, nrhs, d_A, ldda, x.ipiv.base_array, d_B, lddb, &info );
      //cout << info << std::endl;
      // copy matrix from GPU to CPU
-     magma_zgetmatrix( N, N, d_B, lddb, _cast_Zptr_magma(M.base_array), ldb );
+     magma_zgetmatrix( N, nrhs, d_B, lddb, _cast_Zptr_magma(M.base_array), ldb );
 
      // free memory
      magma_free( d_A );

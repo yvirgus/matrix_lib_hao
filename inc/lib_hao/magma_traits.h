@@ -434,11 +434,11 @@ public:
         //allocate memory on GPU
 	t1 = magma_sync_wtime(nullptr);
         magma_zmalloc( &d_A, ldda*N );
-        magma_zmalloc( &d_B, lddb*N );
+        magma_zmalloc( &d_B, lddb*NRHS );
 
         // copy matrix from CPU to GPU
         magma_zsetmatrix( N, N, _cast_Zptr(A), lda, d_A, ldda );
-        magma_zsetmatrix( N, N, _cast_Zptr(B), ldb, d_B, lddb );
+        magma_zsetmatrix( N, NRHS, _cast_Zptr(B), ldb, d_B, lddb );
 	tm_transfer_in = magma_sync_wtime(nullptr) - t1;
 
 	t2 = magma_sync_wtime(nullptr);
@@ -447,7 +447,7 @@ public:
 
         // copy matrix from GPU to CPU
 	t3 = magma_sync_wtime(nullptr);
-        magma_zgetmatrix( N, N, d_B, lddb, _cast_Zptr(B), ldb );
+        magma_zgetmatrix( N, NRHS, d_B, lddb, _cast_Zptr(B), ldb );
 	tm_transfer_out = magma_sync_wtime(nullptr) - t3;
 
         // free memory
