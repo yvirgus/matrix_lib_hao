@@ -988,6 +988,63 @@ void eigen_double_complex_size_test()
     }
   }
 
+  void linear_eq_2_4()
+  {
+     real_Double_t gflops, magma_perf, cpu_perf, cpu_time, magma_time;
+     bool has_exact;     
+
+     gflops = FLOPS_ZGETRS( 4, 4 ) / 1e9;
+
+     Matrix<complex<double>,2> A(2, 2); fill_random(A);
+     Matrix<complex<double>,2> B(2, 100); fill_random(B);
+     Matrix<complex<double>,2> A_lapack = A;
+     Matrix<complex<double>,2> B_lapack = B;
+     Matrix<complex<double>,2> X_exact(2,100);
+     has_exact = false;
+     
+     // This matrix configuration produce this error (It's FIXED NOW!)
+     // CUBLAS error: memory mapping error (11) in magma_zgetrs_gpu at zgetrs_gpu.cpp:116
+     // CUBLAS error: memory mapping error (11) in magma_zgetrs_gpu at zgetrs_gpu.cpp:118
+
+     f77lapack_traits<BL_INT> xlapack_f77;
+     LU_decomp<complex<double>,BL_INT>  LU_lapack( A_lapack, &xlapack_f77 );
+
+     cpu_time = magma_wtime();
+     Matrix<complex<double>,2> X_lapack=LU_lapack.solve_lineq(B_lapack);
+     cpu_time = magma_wtime() - cpu_time;
+     cpu_perf = gflops / cpu_time;
+     //cout << "CPU time : " << cpu_time << endl;
+     //cout.flush();
+
+     if (!has_exact){
+       X_exact = X_lapack;
+     }
+
+     magma_traits<magma_int_t> xlapack;
+     LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
+
+     magma_time = magma_wtime();
+     Matrix<complex<double>,2> X=LU.solve_lineq(B);
+     magma_time = magma_wtime() - magma_time;
+     magma_perf = gflops / xlapack.tm_blas;
+     //cout << "gpu time: " << magma_time << endl;
+     //cout << "- inbound data transfer:  " << xlapack.tm_transfer_in << endl;
+     //cout << "- outbound data transfer: " << xlapack.tm_transfer_out << endl;
+     //cout << "- computation (BLAS):     " << xlapack.tm_blas << endl;
+     //cout.flush();
+     
+     size_t flag=0;
+     for(size_t i=0; i<X_exact.L1; i++)
+       {
+	 for(size_t j=0; j<X_exact.L2; j++) {if(abs(X(i,j)-X_exact(i,j))>1e-10) flag++;}
+       }
+     //if(flag==0) cout<<"New Solve_lineq passed complex double test! \n";
+     //else cout<<"WARNING!!!!!!!!! New Solve_lineq failed complex double test! \n";
+
+     printf("2  4  %7.2f (%7.3f)    %7.2f (%7.3f)    %s \n", magma_perf, magma_time, cpu_perf, cpu_time, (flag == 0 ? "ok" : "failed"));
+
+  }
+
 
   void QR_decompose(int M)
   {
@@ -1107,7 +1164,7 @@ void eigen_double_complex_size_test()
  {
      //size_dgemm_magma_double_test();
      //size_inverse_test();
-
+     linear_eq_2_4();
      //sgemm_float_matrix_size_test();
      //dgemm_double_matrix_size_test();
      //cgemm_float_complex_matrix_size_test();

@@ -453,11 +453,11 @@ namespace matrix_hao_lib
                                               {0.825768240961444,-0.8208234397212029},   
                                               {0.6299516251873555,0.037643960766659545},} };
 
-     //magma_traits<magma_int_t> xlapack;
-     //LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
+     magma_traits<magma_int_t> xlapack;
+     LU_decomp<complex<double>,magma_int_t>  LU( A, &xlapack );
 
-     f77lapack_traits<BL_INT> xlapack;
-     LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
+     //f77lapack_traits<BL_INT> xlapack;
+     //LU_decomp<complex<double>,BL_INT>  LU( A, &xlapack );
 
      Matrix<complex<double>,2> X=LU.solve_lineq(B);
 
@@ -466,7 +466,7 @@ namespace matrix_hao_lib
      {
          for(size_t j=0; j<X_exact.L2; j++) {if(abs(X(i,j)-X_exact(i,j))>1e-13) flag++;}
      }
-     if(flag==0) cout<<"New Solve_lineq passed complex double test! \n";
+     if(flag==0) cout<<"New Magma Solve_lineq passed complex double test! \n";
      else cout<<"WARNING!!!!!!!!! New Solve_lineq failed complex double test! \n";
 
  } 
@@ -536,7 +536,7 @@ namespace matrix_hao_lib
      
      //new_dgemm_f77_double_test();
      //new_dgemm_magma_double_test();
-     new_LU_decomp_test_factory();
+     //new_LU_decomp_test_factory();
      /*
      new_dgemm_f77_complexDouble_test();
      new_dgemm_magma_complexDouble_test();
@@ -546,8 +546,9 @@ namespace matrix_hao_lib
      new_LU_decomp_magma_test();
      new_determinant_test();
      new_log_determinant_test();
-     new_inverse_test();
+     new_inverse_test(); */
      new_solve_lineq_test();
+     /*
      new_QRMatrix_test();
      new_QRMatrix_magma_test();
      */
