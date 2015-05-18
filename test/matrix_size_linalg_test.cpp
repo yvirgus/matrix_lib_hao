@@ -4,6 +4,8 @@
 #include <cassert>
 #include <vector>
 
+#ifdef USE_MAGMA
+
 #include "lib_hao/matrix_linalg.h"
 #include "lib_hao/f77lapack_traits.h"
 #include "lib_hao/magma_traits.h"
@@ -1170,7 +1172,7 @@ void eigen_double_complex_size_test()
      //cgemm_float_complex_matrix_size_test();
      // zgemm_double_complex_matrix_size_test();
      //eigen_double_complex_size_test();    
-   //LU_decomp_size_test();
+     //LU_decomp_size_test();
    //inverse_mtx_size_test();
    //linear_eq_size_test();
    //QR_decomp_size_test();
@@ -1178,3 +1180,5 @@ void eigen_double_complex_size_test()
  }
 
 } //end namespace matrix_hao_lib
+
+#endif 

@@ -3,7 +3,10 @@
 
 #include "lib_hao/matrix_linalg.h"
 #include "lib_hao/f77lapack_traits.h"
+
+#ifdef USE_MAGMA
 #include "lib_hao/magma_traits.h"
+#endif 
 
 using namespace std;
 
@@ -36,6 +39,7 @@ namespace matrix_hao_lib
          cout << "WARNING!!!!!!!!! New gmm failed double test! " << flag << " values mismatched" << endl;
  }
 
+#ifdef USE_MAGMA
  void new_dgemm_magma_double_test()
  {
      cout << "new_dgemm_magma_test" << endl;
@@ -61,6 +65,8 @@ namespace matrix_hao_lib
      else
          cout << "WARNING!!!!!!!!! New gmm_magma failed double test! " << flag << " values mismatched" << endl;
  }
+
+#endif
 
  void new_dgemm_f77_complexDouble_test()
  {
@@ -92,6 +98,8 @@ namespace matrix_hao_lib
      else
          cout << "WARNING!!!!!!!!! New gmm failed complex double test! " << flag << " values mismatched" << endl;
  }
+
+#ifdef USE_MAGMA
    
  void new_dgemm_magma_complexDouble_test()
  {
@@ -122,6 +130,8 @@ namespace matrix_hao_lib
      else
          cout << "WARNING!!!!!!!!! New gmm_magma failed complex double test! " << flag << " values mismatched" << endl;
  }
+
+#endif 
     
     void new_eigen_test()
     {
@@ -163,6 +173,8 @@ namespace matrix_hao_lib
 
     }
 
+#ifdef USE_MAGMA
+
     void new_eigen_magma_test()
     {
      Matrix<complex<double>,2> a={3,3,{ {1.0,0.0} ,   {3.0,4.0},    {2.123,3.11},
@@ -202,6 +214,8 @@ namespace matrix_hao_lib
      //cout<<a<<endl;
 
  }
+
+#endif 
 
  void new_LU_decomp_test()
  {
@@ -255,6 +269,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! New LU_decomp failed complex double test! \n";
  }
 
+#ifdef USE_MAGMA
 
  void new_LU_decomp_magma_test()
  {
@@ -308,6 +323,7 @@ namespace matrix_hao_lib
      else cout<<"WARNING!!!!!!!!! New LU_decomp_magma failed complex double test! \n";
  }
 
+#endif
 
  void new_LU_decomp_test_factory()
  //  tests convenience API (factory-style) based on linalg
@@ -364,7 +380,7 @@ namespace matrix_hao_lib
  }
 
 
-
+#ifdef USE_MAGMA
     
  void new_determinant_test()
  {
@@ -471,6 +487,8 @@ namespace matrix_hao_lib
 
  } 
 
+#endif 
+
  void new_QRMatrix_test()
  {
      Matrix<complex<double>,2> A={3,2,{ {2.0,0.0} ,   {3.0,5.0},    {3.123,3.11},
@@ -500,6 +518,7 @@ namespace matrix_hao_lib
      //cout<<det<<endl;
  }
 
+#ifdef USE_MAGMA
 
  void new_QRMatrix_magma_test()
  {
@@ -530,28 +549,29 @@ namespace matrix_hao_lib
      //cout<<det<<endl;
  }
 
+#endif 
 
  void matrix_linalg_test()
  {
      
-     //new_dgemm_f77_double_test();
-     //new_dgemm_magma_double_test();
-     //new_LU_decomp_test_factory();
-     /*
+     new_dgemm_f77_double_test();
+     new_LU_decomp_test_factory();
      new_dgemm_f77_complexDouble_test();
-     new_dgemm_magma_complexDouble_test();
      new_eigen_test();
-     new_eigen_magma_test();
      new_LU_decomp_test();
+     new_QRMatrix_test();
+
+#ifdef USE_MAGMA
+     new_dgemm_magma_double_test();
+     new_dgemm_magma_complexDouble_test();
+     new_eigen_magma_test();
      new_LU_decomp_magma_test();
      new_determinant_test();
      new_log_determinant_test();
-     new_inverse_test(); */
+     new_inverse_test();
      new_solve_lineq_test();
-     /*
-     new_QRMatrix_test();
      new_QRMatrix_magma_test();
-     */
+#endif
  }
 
 } //end namespace matrix_hao_lib

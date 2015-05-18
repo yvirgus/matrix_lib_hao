@@ -1,6 +1,8 @@
 #ifndef _LIB_HAO_MAGMA_TRAITS
 #define _LIB_HAO_MAGMA_TRAITS
 
+#ifdef USE_MAGMA
+
 #include <complex>
 #include <cstdio>
 
@@ -482,5 +484,7 @@ public:
 };
 
 } //end namespace matrix_hao_lib
+
+#endif 
 
 #endif
