@@ -22,6 +22,9 @@ public:
 
     // Dispatch functions: all of these are pure virtual and must be defined
     // in the specific implementation
+    
+    // Virtual constructor
+    virtual ~blas_lapack_traits() {}
 
     /* Matrix Multiplication C = alpha*A*B + beta*C */
     virtual void gemm(char trans_A, char trans_B, int_t M, int_t N, int_t K,
